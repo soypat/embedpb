@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package shapes;
+
+option go_package = "github.com/soypat/embedpb/internal/fixture/stock;shapespb";
+
+// Kind mirrors a real netbird enum: int32 varint on the wire.
+enum Kind {
+  KIND_UNKNOWN = 0;
+  KIND_A = 1;
+  KIND_B = 2;
+}
+
+// Inner is a nested message (mirrors flow PortInfo / mgmt MachineUserIndexes value).
+message Inner {
+  uint32 a = 1;
+  string b = 2;
+}
+
+// Shapes exercises every wire feature the generator must emit:
+// scalars, enum, nested message, repeated (packed + unpacked), oneof, map.
+message Shapes {
+  // scalars covering each protowire codec kind
+  int32   i32   = 1;   // varint
+  int64   i64   = 2;   // varint
+  uint32  u32   = 3;   // varint
+  uint64  u64   = 4;   // varint
+  sint32  s32   = 5;   // zigzag32
+  sint64  s64   = 6;   // zigzag64
+  fixed32 f32   = 7;   // fixed32
+  fixed64 f64   = 8;   // fixed64
+  float   fl    = 9;   // fixed32
+  double  db    = 10;  // fixed64
+  bool    flag  = 11;  // varint
+  string  str   = 12;  // bytes
+  bytes   blob  = 13;  // bytes
+
+  Kind    kind  = 14;  // enum -> int32 varint
+
+  Inner   inner = 15;  // nested message
+
+  repeated uint32 nums    = 16;  // packed repeated numeric
+  repeated string names   = 17;  // unpacked repeated string
+  repeated Inner  inners  = 18;  // unpacked repeated message
+
+  // oneof: exactly the flow FlowFields.connection_info shape
+  oneof choice {
+    Inner  choice_msg = 19;
+    uint32 choice_num = 20;
+  }
+
+  // map<string, message>: the mgmt machine_users shape
+  map<string, Inner> entries = 21;
+}
