@@ -162,7 +162,12 @@ type Shapes struct {
 	OptionalName *string `protobuf:"bytes,23,opt,name=optional_name,json=optionalName,proto3,oneof" json:"optional_name,omitempty"`
 	OptionalBlob []byte  `protobuf:"bytes,24,opt,name=optional_blob,json=optionalBlob,proto3,oneof" json:"optional_blob,omitempty"`
 	// map<string, string>: mirrors proxy custom_headers / metadata.
-	Labels        map[string]string `protobuf:"bytes,25,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Labels map[string]string `protobuf:"bytes,25,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Optional numerics mirror daemon config fields like wireguardPort, mtu,
+	// sshJWTCacheTTL, icmp_type and icmp_code.
+	OptionalI32   *int32  `protobuf:"varint,26,opt,name=optional_i32,json=optionalI32,proto3,oneof" json:"optional_i32,omitempty"`
+	OptionalI64   *int64  `protobuf:"varint,27,opt,name=optional_i64,json=optionalI64,proto3,oneof" json:"optional_i64,omitempty"`
+	OptionalU32   *uint32 `protobuf:"varint,28,opt,name=optional_u32,json=optionalU32,proto3,oneof" json:"optional_u32,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -383,6 +388,27 @@ func (x *Shapes) GetLabels() map[string]string {
 	return nil
 }
 
+func (x *Shapes) GetOptionalI32() int32 {
+	if x != nil && x.OptionalI32 != nil {
+		return *x.OptionalI32
+	}
+	return 0
+}
+
+func (x *Shapes) GetOptionalI64() int64 {
+	if x != nil && x.OptionalI64 != nil {
+		return *x.OptionalI64
+	}
+	return 0
+}
+
+func (x *Shapes) GetOptionalU32() uint32 {
+	if x != nil && x.OptionalU32 != nil {
+		return *x.OptionalU32
+	}
+	return 0
+}
+
 type isShapes_Choice interface {
 	isShapes_Choice()
 }
@@ -406,7 +432,7 @@ const file_shapes_proto_rawDesc = "" +
 	"\fshapes.proto\x12\x06shapes\"#\n" +
 	"\x05Inner\x12\f\n" +
 	"\x01a\x18\x01 \x01(\rR\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\tR\x01b\"\x8a\a\n" +
+	"\x01b\x18\x02 \x01(\tR\x01b\"\xb5\b\n" +
 	"\x06Shapes\x12\x10\n" +
 	"\x03i32\x18\x01 \x01(\x05R\x03i32\x12\x10\n" +
 	"\x03i64\x18\x02 \x01(\x03R\x03i64\x12\x10\n" +
@@ -435,7 +461,10 @@ const file_shapes_proto_rawDesc = "" +
 	"\roptional_flag\x18\x16 \x01(\bH\x01R\foptionalFlag\x88\x01\x01\x12(\n" +
 	"\roptional_name\x18\x17 \x01(\tH\x02R\foptionalName\x88\x01\x01\x12(\n" +
 	"\roptional_blob\x18\x18 \x01(\fH\x03R\foptionalBlob\x88\x01\x01\x122\n" +
-	"\x06labels\x18\x19 \x03(\v2\x1a.shapes.Shapes.LabelsEntryR\x06labels\x1aI\n" +
+	"\x06labels\x18\x19 \x03(\v2\x1a.shapes.Shapes.LabelsEntryR\x06labels\x12&\n" +
+	"\foptional_i32\x18\x1a \x01(\x05H\x04R\voptionalI32\x88\x01\x01\x12&\n" +
+	"\foptional_i64\x18\x1b \x01(\x03H\x05R\voptionalI64\x88\x01\x01\x12&\n" +
+	"\foptional_u32\x18\x1c \x01(\rH\x06R\voptionalU32\x88\x01\x01\x1aI\n" +
 	"\fEntriesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12#\n" +
 	"\x05value\x18\x02 \x01(\v2\r.shapes.InnerR\x05value:\x028\x01\x1a9\n" +
@@ -445,7 +474,10 @@ const file_shapes_proto_rawDesc = "" +
 	"\x06choiceB\x10\n" +
 	"\x0e_optional_flagB\x10\n" +
 	"\x0e_optional_nameB\x10\n" +
-	"\x0e_optional_blob*0\n" +
+	"\x0e_optional_blobB\x0f\n" +
+	"\r_optional_i32B\x0f\n" +
+	"\r_optional_i64B\x0f\n" +
+	"\r_optional_u32*0\n" +
 	"\x04Kind\x12\x10\n" +
 	"\fKIND_UNKNOWN\x10\x00\x12\n" +
 	"\n" +

@@ -60,4 +60,10 @@ message Shapes {
 
   // map<string, string>: mirrors proxy custom_headers / metadata.
   map<string, string> labels = 25;
+
+  // Optional numerics mirror daemon config fields like wireguardPort, mtu,
+  // sshJWTCacheTTL, icmp_type and icmp_code.
+  optional int32 optional_i32 = 26;
+  optional int64 optional_i64 = 27;
+  optional uint32 optional_u32 = 28;
 }

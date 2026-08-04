@@ -183,6 +183,9 @@ type Shapes struct {
 	OptionalName  *string
 	OptionalBlob  []byte
 	Labels        map[string]string
+	OptionalI32   *int32
+	OptionalI64   *int64
+	OptionalU32   *uint32
 	unknownFields protoreflect.RawFields
 }
 
@@ -345,6 +348,24 @@ func (m *Shapes) GetLabels() map[string]string {
 	}
 	return nil
 }
+func (m *Shapes) GetOptionalI32() int32 {
+	if m != nil && m.OptionalI32 != nil {
+		return *m.OptionalI32
+	}
+	return 0
+}
+func (m *Shapes) GetOptionalI64() int64 {
+	if m != nil && m.OptionalI64 != nil {
+		return *m.OptionalI64
+	}
+	return 0
+}
+func (m *Shapes) GetOptionalU32() uint32 {
+	if m != nil && m.OptionalU32 != nil {
+		return *m.OptionalU32
+	}
+	return 0
+}
 
 func (m *Shapes) ProtoReflect() protoreflect.Message {
 	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
@@ -435,6 +456,15 @@ func (m *Shapes) sizeField() int {
 	}
 	for k, v := range m.Labels {
 		n += protowire.SizeTag(25) + protowire.SizeBytes(mapEntry_Shapes_Labels(k, v))
+	}
+	if m.OptionalI32 != nil {
+		n += protowire.SizeTag(26) + protowire.SizeVarint(uint64(int64(*m.OptionalI32)))
+	}
+	if m.OptionalI64 != nil {
+		n += protowire.SizeTag(27) + protowire.SizeVarint(uint64(*m.OptionalI64))
+	}
+	if m.OptionalU32 != nil {
+		n += protowire.SizeTag(28) + protowire.SizeVarint(uint64(*m.OptionalU32))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -561,6 +591,18 @@ func (m *Shapes) marshalAppend(b []byte) ([]byte, error) {
 			b = protowire.AppendTag(b, 25, protowire.BytesType)
 			b = protowire.AppendBytes(b, appendEntry_Shapes_Labels(nil, k, m.Labels[k]))
 		}
+	}
+	if m.OptionalI32 != nil {
+		b = protowire.AppendTag(b, 26, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(int64(*m.OptionalI32)))
+	}
+	if m.OptionalI64 != nil {
+		b = protowire.AppendTag(b, 27, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(*m.OptionalI64))
+	}
+	if m.OptionalU32 != nil {
+		b = protowire.AppendTag(b, 28, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(*m.OptionalU32))
 	}
 	b = append(b, m.unknownFields...)
 	return b, nil
@@ -725,6 +767,21 @@ func (m *Shapes) unmarshalMsg(b []byte) error {
 				mk, mv := decodeEntry_Shapes_Labels(v)
 				m.Labels[mk] = mv
 			}
+		case 26:
+			v, k := protowire.ConsumeVarint(b)
+			consumed = k
+			tmp := int32(v)
+			m.OptionalI32 = &tmp
+		case 27:
+			v, k := protowire.ConsumeVarint(b)
+			consumed = k
+			tmp := int64(v)
+			m.OptionalI64 = &tmp
+		case 28:
+			v, k := protowire.ConsumeVarint(b)
+			consumed = k
+			tmp := uint32(v)
+			m.OptionalU32 = &tmp
 		default:
 			skip := protowire.ConsumeFieldValue(num, typ, b)
 			if skip < 0 {
@@ -1035,6 +1092,23 @@ func (m *Shapes) AppendJSON(dst []byte) ([]byte, error) {
 	}
 	dst = append(dst, '}')
 	dst = append(dst, ',')
+	if m.OptionalI32 != nil {
+		dst = append(dst, "\"optional_i32\":"...)
+		dst = strconv.AppendInt(dst, int64(*m.OptionalI32), 10)
+		dst = append(dst, ',')
+	}
+	if m.OptionalI64 != nil {
+		dst = append(dst, "\"optional_i64\":"...)
+		dst = append(dst, '"')
+		dst = strconv.AppendInt(dst, int64(*m.OptionalI64), 10)
+		dst = append(dst, '"')
+		dst = append(dst, ',')
+	}
+	if m.OptionalU32 != nil {
+		dst = append(dst, "\"optional_u32\":"...)
+		dst = strconv.AppendUint(dst, uint64(*m.OptionalU32), 10)
+		dst = append(dst, ',')
+	}
 	dst = jsonEndObj(dst)
 	return dst, nil
 }
