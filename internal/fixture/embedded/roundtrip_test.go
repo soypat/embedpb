@@ -22,7 +22,7 @@ import (
 // native run of protobuf-eval/path3b-shapes. It is NOT the stock runtime's byte
 // order — wire order is free, and the stock runtime appends oneofs after other
 // fields. Interop with the stock runtime is proven separately, below.
-const goldenHex = "08f9ffffffffffffffff011080808080802018ac0220808080808080800228f1c00130d3db80cb493defbeadde41efcdab89674523014dc3f54840519b91048b0abf05405801620668c3a96c6c6f6a06000102fdfeff70027a0a082a12066e65737465648201070102ac02f0a2048a0105616c7068618a010462657461920105080112017892010508021201799a0109080912056f6e656f66aa010c0a026b311206080b12027631aa010c0a026b321206081612027632"
+const goldenHex = "08f9ffffffffffffffff011080808080802018ac0220808080808080800228f1c00130d3db80cb493defbeadde41efcdab89674523014dc3f54840519b91048b0abf05405801620668c3a96c6c6f6a06000102fdfeff70027a0a082a12066e65737465648201070102ac02f0a2048a0105616c7068618a010462657461920105080112017892010508021201799a0109080912056f6e656f66aa010c0a026b311206080b12027631aa010c0a026b321206081612027632b00101ba011272656c61792e6d6f636b2e696e76616c6964c20104c000020a"
 
 // sample builds a fully-populated message exercising every feature, including
 // negative values (int32 varint sign-extension + zigzag) and a 2-key map.
@@ -54,6 +54,9 @@ func sample() *Shapes {
 			"k1": {A: 11, B: "v1"},
 			"k2": {A: 22, B: "v2"},
 		},
+		OptionalFlag: proto.Bool(true),
+		OptionalName: proto.String("relay.mock.invalid"),
+		OptionalBlob: []byte{192, 0, 2, 10},
 	}
 }
 
@@ -86,6 +89,9 @@ func stockSample() *stock.Shapes {
 			"k1": {A: 11, B: "v1"},
 			"k2": {A: 22, B: "v2"},
 		},
+		OptionalFlag: proto.Bool(true),
+		OptionalName: proto.String("relay.mock.invalid"),
+		OptionalBlob: []byte{192, 0, 2, 10},
 	}
 }
 
@@ -124,7 +130,9 @@ func TestUnmarshalRoundTrip(t *testing.T) {
 	if out.I32 != -7 || out.S64 != -9876543210 || out.Kind != Kind_KIND_B ||
 		out.Inner == nil || out.Inner.B != "nested" || len(out.Nums) != 4 ||
 		len(out.Names) != 2 || len(out.Inners) != 2 || len(out.Entries) != 2 ||
-		out.Entries["k2"].B != "v2" {
+		out.Entries["k2"].B != "v2" || out.OptionalFlag == nil ||
+		!*out.OptionalFlag || out.GetOptionalName() != "relay.mock.invalid" ||
+		!bytes.Equal(out.GetOptionalBlob(), []byte{192, 0, 2, 10}) {
 		t.Fatalf("decoded fields wrong: %+v", out)
 	}
 	cm, ok := out.Choice.(*Shapes_ChoiceMsg)
@@ -155,7 +163,9 @@ func TestStockInterop(t *testing.T) {
 	if st.I32 != -7 || st.S64 != -9876543210 || st.Kind != stock.Kind_KIND_B ||
 		st.Inner == nil || st.Inner.B != "nested" || len(st.Nums) != 4 ||
 		len(st.Names) != 2 || len(st.Inners) != 2 || len(st.Entries) != 2 ||
-		st.Entries["k2"].B != "v2" {
+		st.Entries["k2"].B != "v2" || st.OptionalFlag == nil ||
+		!*st.OptionalFlag || st.GetOptionalName() != "relay.mock.invalid" ||
+		!bytes.Equal(st.GetOptionalBlob(), []byte{192, 0, 2, 10}) {
 		t.Fatalf("stock decoded our bytes wrong: %+v", st)
 	}
 	if cm, ok := st.Choice.(*stock.Shapes_ChoiceMsg); !ok || cm.ChoiceMsg.B != "oneof" {
@@ -173,7 +183,9 @@ func TestStockInterop(t *testing.T) {
 	if mine.I32 != -7 || mine.S64 != -9876543210 || mine.Kind != Kind_KIND_B ||
 		mine.Inner == nil || mine.Inner.B != "nested" || len(mine.Nums) != 4 ||
 		len(mine.Names) != 2 || len(mine.Inners) != 2 || len(mine.Entries) != 2 ||
-		mine.Entries["k2"].B != "v2" {
+		mine.Entries["k2"].B != "v2" || mine.OptionalFlag == nil ||
+		!*mine.OptionalFlag || mine.GetOptionalName() != "relay.mock.invalid" ||
+		!bytes.Equal(mine.GetOptionalBlob(), []byte{192, 0, 2, 10}) {
 		t.Fatalf("we decoded stock bytes wrong: %+v", mine)
 	}
 	if cm, ok := mine.Choice.(*Shapes_ChoiceMsg); !ok || cm.ChoiceMsg.B != "oneof" {

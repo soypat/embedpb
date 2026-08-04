@@ -179,6 +179,9 @@ type Shapes struct {
 	Inners        []*Inner
 	Choice        isShapes_Choice
 	Entries       map[string]*Inner
+	OptionalFlag  *bool
+	OptionalName  *string
+	OptionalBlob  []byte
 	unknownFields protoreflect.RawFields
 }
 
@@ -317,6 +320,24 @@ func (m *Shapes) GetEntries() map[string]*Inner {
 	}
 	return nil
 }
+func (m *Shapes) GetOptionalFlag() bool {
+	if m != nil && m.OptionalFlag != nil {
+		return *m.OptionalFlag
+	}
+	return false
+}
+func (m *Shapes) GetOptionalName() string {
+	if m != nil && m.OptionalName != nil {
+		return *m.OptionalName
+	}
+	return ""
+}
+func (m *Shapes) GetOptionalBlob() []byte {
+	if m != nil {
+		return m.OptionalBlob
+	}
+	return nil
+}
 
 func (m *Shapes) ProtoReflect() protoreflect.Message {
 	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
@@ -395,6 +416,15 @@ func (m *Shapes) sizeField() int {
 	}
 	for k, v := range m.Entries {
 		n += protowire.SizeTag(21) + protowire.SizeBytes(mapEntry_Shapes_Entries(k, v))
+	}
+	if m.OptionalFlag != nil {
+		n += protowire.SizeTag(22) + protowire.SizeVarint(embedBool(*m.OptionalFlag))
+	}
+	if m.OptionalName != nil {
+		n += protowire.SizeTag(23) + protowire.SizeBytes(len(*m.OptionalName))
+	}
+	if m.OptionalBlob != nil {
+		n += protowire.SizeTag(24) + protowire.SizeBytes(len(m.OptionalBlob))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -498,6 +528,18 @@ func (m *Shapes) marshalAppend(b []byte) ([]byte, error) {
 			b = protowire.AppendTag(b, 21, protowire.BytesType)
 			b = protowire.AppendBytes(b, appendEntry_Shapes_Entries(nil, k, m.Entries[k]))
 		}
+	}
+	if m.OptionalFlag != nil {
+		b = protowire.AppendTag(b, 22, protowire.VarintType)
+		b = protowire.AppendVarint(b, embedBool(*m.OptionalFlag))
+	}
+	if m.OptionalName != nil {
+		b = protowire.AppendTag(b, 23, protowire.BytesType)
+		b = protowire.AppendString(b, *m.OptionalName)
+	}
+	if m.OptionalBlob != nil {
+		b = protowire.AppendTag(b, 24, protowire.BytesType)
+		b = protowire.AppendBytes(b, m.OptionalBlob)
 	}
 	b = append(b, m.unknownFields...)
 	return b, nil
@@ -638,6 +680,20 @@ func (m *Shapes) unmarshalMsg(b []byte) error {
 				mk, mv := decodeEntry_Shapes_Entries(v)
 				m.Entries[mk] = mv
 			}
+		case 22:
+			v, k := protowire.ConsumeVarint(b)
+			consumed = k
+			tmp := v != 0
+			m.OptionalFlag = &tmp
+		case 23:
+			v, k := protowire.ConsumeString(b)
+			consumed = k
+			tmp := v
+			m.OptionalName = &tmp
+		case 24:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			m.OptionalBlob = append([]byte(nil), v...)
 		default:
 			skip := protowire.ConsumeFieldValue(num, typ, b)
 			if skip < 0 {
@@ -862,6 +918,21 @@ func (m *Shapes) AppendJSON(dst []byte) ([]byte, error) {
 	}
 	dst = append(dst, '}')
 	dst = append(dst, ',')
+	if m.OptionalFlag != nil {
+		dst = append(dst, "\"optional_flag\":"...)
+		dst = strconv.AppendBool(dst, *m.OptionalFlag)
+		dst = append(dst, ',')
+	}
+	if m.OptionalName != nil {
+		dst = append(dst, "\"optional_name\":"...)
+		dst = jsonString(dst, *m.OptionalName)
+		dst = append(dst, ',')
+	}
+	if m.OptionalBlob != nil {
+		dst = append(dst, "\"optional_blob\":"...)
+		dst = jsonBytes(dst, m.OptionalBlob)
+		dst = append(dst, ',')
+	}
 	dst = jsonEndObj(dst)
 	return dst, nil
 }

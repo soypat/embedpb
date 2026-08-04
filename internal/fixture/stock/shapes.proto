@@ -51,4 +51,10 @@ message Shapes {
 
   // map<string, message>: the mgmt machine_users shape
   map<string, Inner> entries = 21;
+
+  // proto3 optional fields mirror signal Body.relayServerAddress/sessionId and
+  // Mode.direct: presence matters even when the scalar value is zero.
+  optional bool optional_flag = 22;
+  optional string optional_name = 23;
+  optional bytes optional_blob = 24;
 }
