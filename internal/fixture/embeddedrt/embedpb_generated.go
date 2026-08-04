@@ -182,6 +182,7 @@ type Shapes struct {
 	OptionalFlag  *bool
 	OptionalName  *string
 	OptionalBlob  []byte
+	Labels        map[string]string
 	unknownFields protoreflect.RawFields
 }
 
@@ -338,6 +339,12 @@ func (m *Shapes) GetOptionalBlob() []byte {
 	}
 	return nil
 }
+func (m *Shapes) GetLabels() map[string]string {
+	if m != nil {
+		return m.Labels
+	}
+	return nil
+}
 
 func (m *Shapes) ProtoReflect() protoreflect.Message {
 	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
@@ -425,6 +432,9 @@ func (m *Shapes) sizeField() int {
 	}
 	if m.OptionalBlob != nil {
 		n += protowire.SizeTag(24) + protowire.SizeBytes(len(m.OptionalBlob))
+	}
+	for k, v := range m.Labels {
+		n += protowire.SizeTag(25) + protowire.SizeBytes(mapEntry_Shapes_Labels(k, v))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -540,6 +550,17 @@ func (m *Shapes) marshalAppend(b []byte) ([]byte, error) {
 	if m.OptionalBlob != nil {
 		b = protowire.AppendTag(b, 24, protowire.BytesType)
 		b = protowire.AppendBytes(b, m.OptionalBlob)
+	}
+	if len(m.Labels) > 0 {
+		keys := make([]string, 0, len(m.Labels))
+		for k := range m.Labels {
+			keys = append(keys, k)
+		}
+		sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+		for _, k := range keys {
+			b = protowire.AppendTag(b, 25, protowire.BytesType)
+			b = protowire.AppendBytes(b, appendEntry_Shapes_Labels(nil, k, m.Labels[k]))
+		}
 	}
 	b = append(b, m.unknownFields...)
 	return b, nil
@@ -694,6 +715,16 @@ func (m *Shapes) unmarshalMsg(b []byte) error {
 			v, k := protowire.ConsumeBytes(b)
 			consumed = k
 			m.OptionalBlob = append([]byte(nil), v...)
+		case 25:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			if consumed >= 0 {
+				if m.Labels == nil {
+					m.Labels = make(map[string]string)
+				}
+				mk, mv := decodeEntry_Shapes_Labels(v)
+				m.Labels[mk] = mv
+			}
 		default:
 			skip := protowire.ConsumeFieldValue(num, typ, b)
 			if skip < 0 {
@@ -764,6 +795,57 @@ func decodeEntry_Shapes_Entries(b []byte) (string, *Inner) {
 	}
 	if v == nil {
 		v = &Inner{}
+	}
+	return k, v
+}
+
+func mapEntry_Shapes_Labels(k string, v string) int {
+	n := 0
+	if k != "" {
+		n += protowire.SizeTag(1) + protowire.SizeBytes(len(k))
+	}
+	if v != "" {
+		n += protowire.SizeTag(2) + protowire.SizeBytes(len(v))
+	}
+	return n
+}
+func appendEntry_Shapes_Labels(b []byte, k string, v string) []byte {
+	if k != "" {
+		b = protowire.AppendTag(b, 1, protowire.BytesType)
+		b = protowire.AppendString(b, k)
+	}
+	if v != "" {
+		b = protowire.AppendTag(b, 2, protowire.BytesType)
+		b = protowire.AppendString(b, v)
+	}
+	return b
+}
+func decodeEntry_Shapes_Labels(b []byte) (string, string) {
+	var k string
+	var v string
+	for len(b) > 0 {
+		num, typ, n := protowire.ConsumeTag(b)
+		if n < 0 {
+			break
+		}
+		b = b[n:]
+		var consumed int
+		switch num {
+		case 1:
+			vv, kk := protowire.ConsumeString(b)
+			consumed = kk
+			k = vv
+		case 2:
+			vv, kk := protowire.ConsumeString(b)
+			consumed = kk
+			v = vv
+		default:
+			consumed = protowire.ConsumeFieldValue(num, typ, b)
+		}
+		if consumed < 0 {
+			break
+		}
+		b = b[consumed:]
 	}
 	return k, v
 }
@@ -933,6 +1015,26 @@ func (m *Shapes) AppendJSON(dst []byte) ([]byte, error) {
 		dst = jsonBytes(dst, m.OptionalBlob)
 		dst = append(dst, ',')
 	}
+	dst = append(dst, "\"labels\":"...)
+	dst = append(dst, '{')
+	{
+		mk := make([]string, 0, len(m.Labels))
+		for k := range m.Labels {
+			mk = append(mk, k)
+		}
+		sort.Slice(mk, func(i, j int) bool { return mk[i] < mk[j] })
+		for i, k := range mk {
+			if i > 0 {
+				dst = append(dst, ',')
+			}
+			dst = jsonString(dst, k)
+			dst = append(dst, ':')
+			v := m.Labels[k]
+			dst = jsonString(dst, v)
+		}
+	}
+	dst = append(dst, '}')
+	dst = append(dst, ',')
 	dst = jsonEndObj(dst)
 	return dst, nil
 }

@@ -158,9 +158,11 @@ type Shapes struct {
 	Entries map[string]*Inner `protobuf:"bytes,21,rep,name=entries,proto3" json:"entries,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// proto3 optional fields mirror signal Body.relayServerAddress/sessionId and
 	// Mode.direct: presence matters even when the scalar value is zero.
-	OptionalFlag  *bool   `protobuf:"varint,22,opt,name=optional_flag,json=optionalFlag,proto3,oneof" json:"optional_flag,omitempty"`
-	OptionalName  *string `protobuf:"bytes,23,opt,name=optional_name,json=optionalName,proto3,oneof" json:"optional_name,omitempty"`
-	OptionalBlob  []byte  `protobuf:"bytes,24,opt,name=optional_blob,json=optionalBlob,proto3,oneof" json:"optional_blob,omitempty"`
+	OptionalFlag *bool   `protobuf:"varint,22,opt,name=optional_flag,json=optionalFlag,proto3,oneof" json:"optional_flag,omitempty"`
+	OptionalName *string `protobuf:"bytes,23,opt,name=optional_name,json=optionalName,proto3,oneof" json:"optional_name,omitempty"`
+	OptionalBlob []byte  `protobuf:"bytes,24,opt,name=optional_blob,json=optionalBlob,proto3,oneof" json:"optional_blob,omitempty"`
+	// map<string, string>: mirrors proxy custom_headers / metadata.
+	Labels        map[string]string `protobuf:"bytes,25,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -374,6 +376,13 @@ func (x *Shapes) GetOptionalBlob() []byte {
 	return nil
 }
 
+func (x *Shapes) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
 type isShapes_Choice interface {
 	isShapes_Choice()
 }
@@ -397,7 +406,7 @@ const file_shapes_proto_rawDesc = "" +
 	"\fshapes.proto\x12\x06shapes\"#\n" +
 	"\x05Inner\x12\f\n" +
 	"\x01a\x18\x01 \x01(\rR\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\tR\x01b\"\x9b\x06\n" +
+	"\x01b\x18\x02 \x01(\tR\x01b\"\x8a\a\n" +
 	"\x06Shapes\x12\x10\n" +
 	"\x03i32\x18\x01 \x01(\x05R\x03i32\x12\x10\n" +
 	"\x03i64\x18\x02 \x01(\x03R\x03i64\x12\x10\n" +
@@ -425,10 +434,14 @@ const file_shapes_proto_rawDesc = "" +
 	"\aentries\x18\x15 \x03(\v2\x1b.shapes.Shapes.EntriesEntryR\aentries\x12(\n" +
 	"\roptional_flag\x18\x16 \x01(\bH\x01R\foptionalFlag\x88\x01\x01\x12(\n" +
 	"\roptional_name\x18\x17 \x01(\tH\x02R\foptionalName\x88\x01\x01\x12(\n" +
-	"\roptional_blob\x18\x18 \x01(\fH\x03R\foptionalBlob\x88\x01\x01\x1aI\n" +
+	"\roptional_blob\x18\x18 \x01(\fH\x03R\foptionalBlob\x88\x01\x01\x122\n" +
+	"\x06labels\x18\x19 \x03(\v2\x1a.shapes.Shapes.LabelsEntryR\x06labels\x1aI\n" +
 	"\fEntriesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12#\n" +
-	"\x05value\x18\x02 \x01(\v2\r.shapes.InnerR\x05value:\x028\x01B\b\n" +
+	"\x05value\x18\x02 \x01(\v2\r.shapes.InnerR\x05value:\x028\x01\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
 	"\x06choiceB\x10\n" +
 	"\x0e_optional_flagB\x10\n" +
 	"\x0e_optional_nameB\x10\n" +
@@ -453,12 +466,13 @@ func file_shapes_proto_rawDescGZIP() []byte {
 }
 
 var file_shapes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_shapes_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_shapes_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_shapes_proto_goTypes = []any{
 	(Kind)(0),      // 0: shapes.Kind
 	(*Inner)(nil),  // 1: shapes.Inner
 	(*Shapes)(nil), // 2: shapes.Shapes
 	nil,            // 3: shapes.Shapes.EntriesEntry
+	nil,            // 4: shapes.Shapes.LabelsEntry
 }
 var file_shapes_proto_depIdxs = []int32{
 	0, // 0: shapes.Shapes.kind:type_name -> shapes.Kind
@@ -466,12 +480,13 @@ var file_shapes_proto_depIdxs = []int32{
 	1, // 2: shapes.Shapes.inners:type_name -> shapes.Inner
 	1, // 3: shapes.Shapes.choice_msg:type_name -> shapes.Inner
 	3, // 4: shapes.Shapes.entries:type_name -> shapes.Shapes.EntriesEntry
-	1, // 5: shapes.Shapes.EntriesEntry.value:type_name -> shapes.Inner
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	4, // 5: shapes.Shapes.labels:type_name -> shapes.Shapes.LabelsEntry
+	1, // 6: shapes.Shapes.EntriesEntry.value:type_name -> shapes.Inner
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_shapes_proto_init() }
@@ -489,7 +504,7 @@ func file_shapes_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shapes_proto_rawDesc), len(file_shapes_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
