@@ -9,6 +9,7 @@ package shapespb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -165,11 +166,13 @@ type Shapes struct {
 	Labels map[string]string `protobuf:"bytes,25,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Optional numerics mirror daemon config fields like wireguardPort, mtu,
 	// sshJWTCacheTTL, icmp_type and icmp_code.
-	OptionalI32   *int32  `protobuf:"varint,26,opt,name=optional_i32,json=optionalI32,proto3,oneof" json:"optional_i32,omitempty"`
-	OptionalI64   *int64  `protobuf:"varint,27,opt,name=optional_i64,json=optionalI64,proto3,oneof" json:"optional_i64,omitempty"`
-	OptionalU32   *uint32 `protobuf:"varint,28,opt,name=optional_u32,json=optionalU32,proto3,oneof" json:"optional_u32,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	OptionalI32 *int32  `protobuf:"varint,26,opt,name=optional_i32,json=optionalI32,proto3,oneof" json:"optional_i32,omitempty"`
+	OptionalI64 *int64  `protobuf:"varint,27,opt,name=optional_i64,json=optionalI64,proto3,oneof" json:"optional_i64,omitempty"`
+	OptionalU32 *uint32 `protobuf:"varint,28,opt,name=optional_u32,json=optionalU32,proto3,oneof" json:"optional_u32,omitempty"`
+	// Optional well-known type mirrors daemon dnsRouteInterval.
+	OptionalDuration *durationpb.Duration `protobuf:"bytes,29,opt,name=optional_duration,json=optionalDuration,proto3,oneof" json:"optional_duration,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Shapes) Reset() {
@@ -409,6 +412,13 @@ func (x *Shapes) GetOptionalU32() uint32 {
 	return 0
 }
 
+func (x *Shapes) GetOptionalDuration() *durationpb.Duration {
+	if x != nil {
+		return x.OptionalDuration
+	}
+	return nil
+}
+
 type isShapes_Choice interface {
 	isShapes_Choice()
 }
@@ -429,10 +439,10 @@ var File_shapes_proto protoreflect.FileDescriptor
 
 const file_shapes_proto_rawDesc = "" +
 	"\n" +
-	"\fshapes.proto\x12\x06shapes\"#\n" +
+	"\fshapes.proto\x12\x06shapes\x1a\x1egoogle/protobuf/duration.proto\"#\n" +
 	"\x05Inner\x12\f\n" +
 	"\x01a\x18\x01 \x01(\rR\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\tR\x01b\"\xb5\b\n" +
+	"\x01b\x18\x02 \x01(\tR\x01b\"\x98\t\n" +
 	"\x06Shapes\x12\x10\n" +
 	"\x03i32\x18\x01 \x01(\x05R\x03i32\x12\x10\n" +
 	"\x03i64\x18\x02 \x01(\x03R\x03i64\x12\x10\n" +
@@ -464,7 +474,8 @@ const file_shapes_proto_rawDesc = "" +
 	"\x06labels\x18\x19 \x03(\v2\x1a.shapes.Shapes.LabelsEntryR\x06labels\x12&\n" +
 	"\foptional_i32\x18\x1a \x01(\x05H\x04R\voptionalI32\x88\x01\x01\x12&\n" +
 	"\foptional_i64\x18\x1b \x01(\x03H\x05R\voptionalI64\x88\x01\x01\x12&\n" +
-	"\foptional_u32\x18\x1c \x01(\rH\x06R\voptionalU32\x88\x01\x01\x1aI\n" +
+	"\foptional_u32\x18\x1c \x01(\rH\x06R\voptionalU32\x88\x01\x01\x12K\n" +
+	"\x11optional_duration\x18\x1d \x01(\v2\x19.google.protobuf.DurationH\aR\x10optionalDuration\x88\x01\x01\x1aI\n" +
 	"\fEntriesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12#\n" +
 	"\x05value\x18\x02 \x01(\v2\r.shapes.InnerR\x05value:\x028\x01\x1a9\n" +
@@ -477,7 +488,8 @@ const file_shapes_proto_rawDesc = "" +
 	"\x0e_optional_blobB\x0f\n" +
 	"\r_optional_i32B\x0f\n" +
 	"\r_optional_i64B\x0f\n" +
-	"\r_optional_u32*0\n" +
+	"\r_optional_u32B\x14\n" +
+	"\x12_optional_duration*0\n" +
 	"\x04Kind\x12\x10\n" +
 	"\fKIND_UNKNOWN\x10\x00\x12\n" +
 	"\n" +
@@ -500,11 +512,12 @@ func file_shapes_proto_rawDescGZIP() []byte {
 var file_shapes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_shapes_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_shapes_proto_goTypes = []any{
-	(Kind)(0),      // 0: shapes.Kind
-	(*Inner)(nil),  // 1: shapes.Inner
-	(*Shapes)(nil), // 2: shapes.Shapes
-	nil,            // 3: shapes.Shapes.EntriesEntry
-	nil,            // 4: shapes.Shapes.LabelsEntry
+	(Kind)(0),                   // 0: shapes.Kind
+	(*Inner)(nil),               // 1: shapes.Inner
+	(*Shapes)(nil),              // 2: shapes.Shapes
+	nil,                         // 3: shapes.Shapes.EntriesEntry
+	nil,                         // 4: shapes.Shapes.LabelsEntry
+	(*durationpb.Duration)(nil), // 5: google.protobuf.Duration
 }
 var file_shapes_proto_depIdxs = []int32{
 	0, // 0: shapes.Shapes.kind:type_name -> shapes.Kind
@@ -513,12 +526,13 @@ var file_shapes_proto_depIdxs = []int32{
 	1, // 3: shapes.Shapes.choice_msg:type_name -> shapes.Inner
 	3, // 4: shapes.Shapes.entries:type_name -> shapes.Shapes.EntriesEntry
 	4, // 5: shapes.Shapes.labels:type_name -> shapes.Shapes.LabelsEntry
-	1, // 6: shapes.Shapes.EntriesEntry.value:type_name -> shapes.Inner
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	5, // 6: shapes.Shapes.optional_duration:type_name -> google.protobuf.Duration
+	1, // 7: shapes.Shapes.EntriesEntry.value:type_name -> shapes.Inner
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_shapes_proto_init() }

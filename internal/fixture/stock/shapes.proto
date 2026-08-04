@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/duration.proto";
+
 package shapes;
 
 option go_package = "github.com/soypat/embedpb/internal/fixture/stock;shapespb";
@@ -66,4 +68,7 @@ message Shapes {
   optional int32 optional_i32 = 26;
   optional int64 optional_i64 = 27;
   optional uint32 optional_u32 = 28;
+
+  // Optional well-known type mirrors daemon dnsRouteInterval.
+  optional google.protobuf.Duration optional_duration = 29;
 }

@@ -32,6 +32,9 @@ func fieldGoType(f Field) string {
 		if f.Elem.Kind == "bytes" {
 			return "[]byte"
 		}
+		if f.Elem.Kind == "message" {
+			return elemGoType(f.Elem)
+		}
 		return "*" + scalarGoType(f.Elem)
 	case CardRepeated:
 		return "[]" + elemGoType(f.Elem)

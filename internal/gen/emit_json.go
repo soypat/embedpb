@@ -44,7 +44,9 @@ func emitFieldJSON(x *w, m Message, f Field) {
 	if f.Card == CardOptional {
 		x.p("\tif %s != nil {", val)
 		x.p("\t\tdst = append(dst, %q...)", `"`+f.ProtoName+`":`)
-		if f.Elem.Kind == "bytes" {
+		if f.Elem.Kind == "message" {
+			emitMsgJSON(x, "\t\t", f.Elem, val)
+		} else if f.Elem.Kind == "bytes" {
 			emitScalarJSON(x, "\t\t", f.Elem, val)
 		} else {
 			emitScalarJSON(x, "\t\t", f.Elem, "*"+val)

@@ -11,18 +11,20 @@ import (
 	"encoding/json"
 	"reflect"
 	"testing"
+	"time"
 
 	stock "github.com/soypat/embedpb/internal/fixture/stock"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 // goldenHex is our canonical deterministic marshal of sample(), captured from a
 // native run of protobuf-eval/path3b-shapes. It is NOT the stock runtime's byte
 // order — wire order is free, and the stock runtime appends oneofs after other
 // fields. Interop with the stock runtime is proven separately, below.
-const goldenHex = "08f9ffffffffffffffff011080808080802018ac0220808080808080800228f1c00130d3db80cb493defbeadde41efcdab89674523014dc3f54840519b91048b0abf05405801620668c3a96c6c6f6a06000102fdfeff70027a0a082a12066e65737465648201070102ac02f0a2048a0105616c7068618a010462657461920105080112017892010508021201799a0109080912056f6e656f66aa010c0a026b311206080b12027631aa010c0a026b321206081612027632b00101ba011272656c61792e6d6f636b2e696e76616c6964c20104c000020aca010b0a03656e76120474657374ca010d0a04726f6c65120570726f7879d001bffdffffffffffffff01d801ec9403e00108"
+const goldenHex = "08f9ffffffffffffffff011080808080802018ac0220808080808080800228f1c00130d3db80cb493defbeadde41efcdab89674523014dc3f54840519b91048b0abf05405801620668c3a96c6c6f6a06000102fdfeff70027a0a082a12066e65737465648201070102ac02f0a2048a0105616c7068618a010462657461920105080112017892010508021201799a0109080912056f6e656f66aa010c0a026b311206080b12027631aa010c0a026b321206081612027632b00101ba011272656c61792e6d6f636b2e696e76616c6964c20104c000020aca010b0a03656e76120474657374ca010d0a04726f6c65120570726f7879d001bffdffffffffffffff01d801ec9403e00108ea0102085a"
 
 // sample builds a fully-populated message exercising every feature, including
 // negative values (int32 varint sign-extension + zigzag) and a 2-key map.
@@ -61,9 +63,10 @@ func sample() *Shapes {
 			"env":  "test",
 			"role": "proxy",
 		},
-		OptionalI32: proto.Int32(-321),
-		OptionalI64: proto.Int64(51820),
-		OptionalU32: proto.Uint32(8),
+		OptionalI32:      proto.Int32(-321),
+		OptionalI64:      proto.Int64(51820),
+		OptionalU32:      proto.Uint32(8),
+		OptionalDuration: durationpb.New(90 * time.Second),
 	}
 }
 
@@ -103,9 +106,10 @@ func stockSample() *stock.Shapes {
 			"env":  "test",
 			"role": "proxy",
 		},
-		OptionalI32: proto.Int32(-321),
-		OptionalI64: proto.Int64(51820),
-		OptionalU32: proto.Uint32(8),
+		OptionalI32:      proto.Int32(-321),
+		OptionalI64:      proto.Int64(51820),
+		OptionalU32:      proto.Uint32(8),
+		OptionalDuration: durationpb.New(90 * time.Second),
 	}
 }
 
@@ -150,7 +154,8 @@ func TestUnmarshalRoundTrip(t *testing.T) {
 		len(out.Labels) != 2 || out.Labels["role"] != "proxy" ||
 		out.OptionalI32 == nil || *out.OptionalI32 != -321 ||
 		out.OptionalI64 == nil || *out.OptionalI64 != 51820 ||
-		out.OptionalU32 == nil || *out.OptionalU32 != 8 {
+		out.OptionalU32 == nil || *out.OptionalU32 != 8 ||
+		out.OptionalDuration == nil || out.OptionalDuration.Seconds != 90 {
 		t.Fatalf("decoded fields wrong: %+v", out)
 	}
 	cm, ok := out.Choice.(*Shapes_ChoiceMsg)
@@ -187,7 +192,8 @@ func TestStockInterop(t *testing.T) {
 		len(st.Labels) != 2 || st.Labels["role"] != "proxy" ||
 		st.OptionalI32 == nil || *st.OptionalI32 != -321 ||
 		st.OptionalI64 == nil || *st.OptionalI64 != 51820 ||
-		st.OptionalU32 == nil || *st.OptionalU32 != 8 {
+		st.OptionalU32 == nil || *st.OptionalU32 != 8 ||
+		st.OptionalDuration == nil || st.OptionalDuration.Seconds != 90 {
 		t.Fatalf("stock decoded our bytes wrong: %+v", st)
 	}
 	if cm, ok := st.Choice.(*stock.Shapes_ChoiceMsg); !ok || cm.ChoiceMsg.B != "oneof" {
@@ -211,7 +217,8 @@ func TestStockInterop(t *testing.T) {
 		len(mine.Labels) != 2 || mine.Labels["role"] != "proxy" ||
 		mine.OptionalI32 == nil || *mine.OptionalI32 != -321 ||
 		mine.OptionalI64 == nil || *mine.OptionalI64 != 51820 ||
-		mine.OptionalU32 == nil || *mine.OptionalU32 != 8 {
+		mine.OptionalU32 == nil || *mine.OptionalU32 != 8 ||
+		mine.OptionalDuration == nil || mine.OptionalDuration.Seconds != 90 {
 		t.Fatalf("we decoded stock bytes wrong: %+v", mine)
 	}
 	if cm, ok := mine.Choice.(*Shapes_ChoiceMsg); !ok || cm.ChoiceMsg.B != "oneof" {

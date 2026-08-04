@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/encoding/protowire"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/runtime/protoiface"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 )
 
 var _ = math.Float32bits
@@ -159,34 +160,35 @@ func (m *Inner) AppendJSON(dst []byte) ([]byte, error) {
 }
 
 type Shapes struct {
-	I32           int32
-	I64           int64
-	U32           uint32
-	U64           uint64
-	S32           int32
-	S64           int64
-	F32           uint32
-	F64           uint64
-	Fl            float32
-	Db            float64
-	Flag          bool
-	Str           string
-	Blob          []byte
-	Kind          Kind
-	Inner         *Inner
-	Nums          []uint32
-	Names         []string
-	Inners        []*Inner
-	Choice        isShapes_Choice
-	Entries       map[string]*Inner
-	OptionalFlag  *bool
-	OptionalName  *string
-	OptionalBlob  []byte
-	Labels        map[string]string
-	OptionalI32   *int32
-	OptionalI64   *int64
-	OptionalU32   *uint32
-	unknownFields protoreflect.RawFields
+	I32              int32
+	I64              int64
+	U32              uint32
+	U64              uint64
+	S32              int32
+	S64              int64
+	F32              uint32
+	F64              uint64
+	Fl               float32
+	Db               float64
+	Flag             bool
+	Str              string
+	Blob             []byte
+	Kind             Kind
+	Inner            *Inner
+	Nums             []uint32
+	Names            []string
+	Inners           []*Inner
+	Choice           isShapes_Choice
+	Entries          map[string]*Inner
+	OptionalFlag     *bool
+	OptionalName     *string
+	OptionalBlob     []byte
+	Labels           map[string]string
+	OptionalI32      *int32
+	OptionalI64      *int64
+	OptionalU32      *uint32
+	OptionalDuration *durationpb.Duration
+	unknownFields    protoreflect.RawFields
 }
 
 func (m *Shapes) Reset()         { *m = Shapes{} }
@@ -366,6 +368,12 @@ func (m *Shapes) GetOptionalU32() uint32 {
 	}
 	return 0
 }
+func (m *Shapes) GetOptionalDuration() *durationpb.Duration {
+	if m != nil {
+		return m.OptionalDuration
+	}
+	return nil
+}
 
 func (m *Shapes) ProtoReflect() protoreflect.Message {
 	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
@@ -465,6 +473,9 @@ func (m *Shapes) sizeField() int {
 	}
 	if m.OptionalU32 != nil {
 		n += protowire.SizeTag(28) + protowire.SizeVarint(uint64(*m.OptionalU32))
+	}
+	if m.OptionalDuration != nil {
+		n += protowire.SizeTag(29) + protowire.SizeBytes(extSize_durationpb_Duration(m.OptionalDuration))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -603,6 +614,11 @@ func (m *Shapes) marshalAppend(b []byte) ([]byte, error) {
 	if m.OptionalU32 != nil {
 		b = protowire.AppendTag(b, 28, protowire.VarintType)
 		b = protowire.AppendVarint(b, uint64(*m.OptionalU32))
+	}
+	if m.OptionalDuration != nil {
+		sub := extAppend_durationpb_Duration(nil, m.OptionalDuration)
+		b = protowire.AppendTag(b, 29, protowire.BytesType)
+		b = protowire.AppendBytes(b, sub)
 	}
 	b = append(b, m.unknownFields...)
 	return b, nil
@@ -782,6 +798,12 @@ func (m *Shapes) unmarshalMsg(b []byte) error {
 			consumed = k
 			tmp := uint32(v)
 			m.OptionalU32 = &tmp
+		case 29:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			if consumed >= 0 {
+				m.OptionalDuration = extDecode_durationpb_Duration(v)
+			}
 		default:
 			skip := protowire.ConsumeFieldValue(num, typ, b)
 			if skip < 0 {
@@ -1109,8 +1131,92 @@ func (m *Shapes) AppendJSON(dst []byte) ([]byte, error) {
 		dst = strconv.AppendUint(dst, uint64(*m.OptionalU32), 10)
 		dst = append(dst, ',')
 	}
+	if m.OptionalDuration != nil {
+		dst = append(dst, "\"optional_duration\":"...)
+		dst = extJSON_durationpb_Duration(dst, m.OptionalDuration)
+		dst = append(dst, ',')
+	}
 	dst = jsonEndObj(dst)
 	return dst, nil
+}
+
+func extSize_durationpb_Duration(v *durationpb.Duration) int {
+	if v == nil {
+		return 0
+	}
+	n := 0
+	if v.Seconds != 0 {
+		n += protowire.SizeTag(1) + protowire.SizeVarint(uint64(v.Seconds))
+	}
+	if v.Nanos != 0 {
+		n += protowire.SizeTag(2) + protowire.SizeVarint(uint64(int64(v.Nanos)))
+	}
+	return n
+}
+func extAppend_durationpb_Duration(b []byte, v *durationpb.Duration) []byte {
+	if v == nil {
+		return b
+	}
+	if v.Seconds != 0 {
+		b = protowire.AppendTag(b, 1, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(v.Seconds))
+	}
+	if v.Nanos != 0 {
+		b = protowire.AppendTag(b, 2, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(int64(v.Nanos)))
+	}
+	return b
+}
+func extDecode_durationpb_Duration(b []byte) *durationpb.Duration {
+	m := &durationpb.Duration{}
+	for len(b) > 0 {
+		num, typ, n := protowire.ConsumeTag(b)
+		if n < 0 {
+			break
+		}
+		b = b[n:]
+		var consumed int
+		switch num {
+		case 1:
+			v, k := protowire.ConsumeVarint(b)
+			consumed = k
+			m.Seconds = int64(v)
+		case 2:
+			v, k := protowire.ConsumeVarint(b)
+			consumed = k
+			m.Nanos = int32(v)
+		default:
+			consumed = protowire.ConsumeFieldValue(num, typ, b)
+		}
+		if consumed < 0 {
+			break
+		}
+		b = b[consumed:]
+	}
+	return m
+}
+func extJSON_durationpb_Duration(dst []byte, v *durationpb.Duration) []byte {
+	if v == nil {
+		return append(dst, "null"...)
+	}
+	sec, nanos := v.Seconds, v.Nanos
+	dst = append(dst, '"')
+	if sec < 0 || nanos < 0 {
+		dst = append(dst, '-')
+		if sec < 0 {
+			sec = -sec
+		}
+		if nanos < 0 {
+			nanos = -nanos
+		}
+	}
+	dst = strconv.AppendInt(dst, sec, 10)
+	if nanos != 0 {
+		dst = append(dst, '.')
+		dst = append(dst, jsonNanoFrac(nanos)...)
+	}
+	dst = append(dst, 's', '"')
+	return dst
 }
 
 func embedBool(v bool) uint64 {
