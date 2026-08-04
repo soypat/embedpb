@@ -125,6 +125,193 @@ func (x *Inner) GetB() string {
 	return ""
 }
 
+// StringList mirrors daemon IPList: a map value message that itself contains a
+// repeated string field.
+type StringList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Values        []string               `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StringList) Reset() {
+	*x = StringList{}
+	mi := &file_shapes_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StringList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StringList) ProtoMessage() {}
+
+func (x *StringList) ProtoReflect() protoreflect.Message {
+	mi := &file_shapes_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StringList.ProtoReflect.Descriptor instead.
+func (*StringList) Descriptor() ([]byte, []int) {
+	return file_shapes_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *StringList) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+// Message-only oneof arms mirror proxy AuthenticateRequest / SyncMappingsRequest.
+type AuthPassword struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Password      string                 `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthPassword) Reset() {
+	*x = AuthPassword{}
+	mi := &file_shapes_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthPassword) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthPassword) ProtoMessage() {}
+
+func (x *AuthPassword) ProtoReflect() protoreflect.Message {
+	mi := &file_shapes_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthPassword.ProtoReflect.Descriptor instead.
+func (*AuthPassword) Descriptor() ([]byte, []int) {
+	return file_shapes_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *AuthPassword) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+type AuthPin struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pin           string                 `protobuf:"bytes,1,opt,name=pin,proto3" json:"pin,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthPin) Reset() {
+	*x = AuthPin{}
+	mi := &file_shapes_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthPin) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthPin) ProtoMessage() {}
+
+func (x *AuthPin) ProtoReflect() protoreflect.Message {
+	mi := &file_shapes_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthPin.ProtoReflect.Descriptor instead.
+func (*AuthPin) Descriptor() ([]byte, []int) {
+	return file_shapes_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *AuthPin) GetPin() string {
+	if x != nil {
+		return x.Pin
+	}
+	return ""
+}
+
+type AuthHeader struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AuthHeader) Reset() {
+	*x = AuthHeader{}
+	mi := &file_shapes_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AuthHeader) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AuthHeader) ProtoMessage() {}
+
+func (x *AuthHeader) ProtoReflect() protoreflect.Message {
+	mi := &file_shapes_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AuthHeader.ProtoReflect.Descriptor instead.
+func (*AuthHeader) Descriptor() ([]byte, []int) {
+	return file_shapes_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *AuthHeader) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *AuthHeader) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
 // Shapes exercises every wire feature the generator must emit:
 // scalars, enum, nested message, repeated (packed + unpacked), oneof, map.
 type Shapes struct {
@@ -171,13 +358,23 @@ type Shapes struct {
 	OptionalU32 *uint32 `protobuf:"varint,28,opt,name=optional_u32,json=optionalU32,proto3,oneof" json:"optional_u32,omitempty"`
 	// Optional well-known type mirrors daemon dnsRouteInterval.
 	OptionalDuration *durationpb.Duration `protobuf:"bytes,29,opt,name=optional_duration,json=optionalDuration,proto3,oneof" json:"optional_duration,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// map<string, message-with-repeated-string>: mirrors daemon resolvedIPs.
+	Resolved map[string]*StringList `protobuf:"bytes,30,rep,name=resolved,proto3" json:"resolved,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// oneof with several message arms: mirrors proxy authentication/sync requests.
+	//
+	// Types that are valid to be assigned to Auth:
+	//
+	//	*Shapes_Password
+	//	*Shapes_Pin
+	//	*Shapes_Header
+	Auth          isShapes_Auth `protobuf_oneof:"auth"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Shapes) Reset() {
 	*x = Shapes{}
-	mi := &file_shapes_proto_msgTypes[1]
+	mi := &file_shapes_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -189,7 +386,7 @@ func (x *Shapes) String() string {
 func (*Shapes) ProtoMessage() {}
 
 func (x *Shapes) ProtoReflect() protoreflect.Message {
-	mi := &file_shapes_proto_msgTypes[1]
+	mi := &file_shapes_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -202,7 +399,7 @@ func (x *Shapes) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Shapes.ProtoReflect.Descriptor instead.
 func (*Shapes) Descriptor() ([]byte, []int) {
-	return file_shapes_proto_rawDescGZIP(), []int{1}
+	return file_shapes_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Shapes) GetI32() int32 {
@@ -419,6 +616,47 @@ func (x *Shapes) GetOptionalDuration() *durationpb.Duration {
 	return nil
 }
 
+func (x *Shapes) GetResolved() map[string]*StringList {
+	if x != nil {
+		return x.Resolved
+	}
+	return nil
+}
+
+func (x *Shapes) GetAuth() isShapes_Auth {
+	if x != nil {
+		return x.Auth
+	}
+	return nil
+}
+
+func (x *Shapes) GetPassword() *AuthPassword {
+	if x != nil {
+		if x, ok := x.Auth.(*Shapes_Password); ok {
+			return x.Password
+		}
+	}
+	return nil
+}
+
+func (x *Shapes) GetPin() *AuthPin {
+	if x != nil {
+		if x, ok := x.Auth.(*Shapes_Pin); ok {
+			return x.Pin
+		}
+	}
+	return nil
+}
+
+func (x *Shapes) GetHeader() *AuthHeader {
+	if x != nil {
+		if x, ok := x.Auth.(*Shapes_Header); ok {
+			return x.Header
+		}
+	}
+	return nil
+}
+
 type isShapes_Choice interface {
 	isShapes_Choice()
 }
@@ -435,6 +673,28 @@ func (*Shapes_ChoiceMsg) isShapes_Choice() {}
 
 func (*Shapes_ChoiceNum) isShapes_Choice() {}
 
+type isShapes_Auth interface {
+	isShapes_Auth()
+}
+
+type Shapes_Password struct {
+	Password *AuthPassword `protobuf:"bytes,31,opt,name=password,proto3,oneof"`
+}
+
+type Shapes_Pin struct {
+	Pin *AuthPin `protobuf:"bytes,32,opt,name=pin,proto3,oneof"`
+}
+
+type Shapes_Header struct {
+	Header *AuthHeader `protobuf:"bytes,33,opt,name=header,proto3,oneof"`
+}
+
+func (*Shapes_Password) isShapes_Auth() {}
+
+func (*Shapes_Pin) isShapes_Auth() {}
+
+func (*Shapes_Header) isShapes_Auth() {}
+
 var File_shapes_proto protoreflect.FileDescriptor
 
 const file_shapes_proto_rawDesc = "" +
@@ -442,7 +702,18 @@ const file_shapes_proto_rawDesc = "" +
 	"\fshapes.proto\x12\x06shapes\x1a\x1egoogle/protobuf/duration.proto\"#\n" +
 	"\x05Inner\x12\f\n" +
 	"\x01a\x18\x01 \x01(\rR\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\tR\x01b\"\x98\t\n" +
+	"\x01b\x18\x02 \x01(\tR\x01b\"$\n" +
+	"\n" +
+	"StringList\x12\x16\n" +
+	"\x06values\x18\x01 \x03(\tR\x06values\"*\n" +
+	"\fAuthPassword\x12\x1a\n" +
+	"\bpassword\x18\x01 \x01(\tR\bpassword\"\x1b\n" +
+	"\aAuthPin\x12\x10\n" +
+	"\x03pin\x18\x01 \x01(\tR\x03pin\"6\n" +
+	"\n" +
+	"AuthHeader\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\xb2\v\n" +
 	"\x06Shapes\x12\x10\n" +
 	"\x03i32\x18\x01 \x01(\x05R\x03i32\x12\x10\n" +
 	"\x03i64\x18\x02 \x01(\x03R\x03i64\x12\x10\n" +
@@ -468,21 +739,29 @@ const file_shapes_proto_rawDesc = "" +
 	"\n" +
 	"choice_num\x18\x14 \x01(\rH\x00R\tchoiceNum\x125\n" +
 	"\aentries\x18\x15 \x03(\v2\x1b.shapes.Shapes.EntriesEntryR\aentries\x12(\n" +
-	"\roptional_flag\x18\x16 \x01(\bH\x01R\foptionalFlag\x88\x01\x01\x12(\n" +
-	"\roptional_name\x18\x17 \x01(\tH\x02R\foptionalName\x88\x01\x01\x12(\n" +
-	"\roptional_blob\x18\x18 \x01(\fH\x03R\foptionalBlob\x88\x01\x01\x122\n" +
+	"\roptional_flag\x18\x16 \x01(\bH\x02R\foptionalFlag\x88\x01\x01\x12(\n" +
+	"\roptional_name\x18\x17 \x01(\tH\x03R\foptionalName\x88\x01\x01\x12(\n" +
+	"\roptional_blob\x18\x18 \x01(\fH\x04R\foptionalBlob\x88\x01\x01\x122\n" +
 	"\x06labels\x18\x19 \x03(\v2\x1a.shapes.Shapes.LabelsEntryR\x06labels\x12&\n" +
-	"\foptional_i32\x18\x1a \x01(\x05H\x04R\voptionalI32\x88\x01\x01\x12&\n" +
-	"\foptional_i64\x18\x1b \x01(\x03H\x05R\voptionalI64\x88\x01\x01\x12&\n" +
-	"\foptional_u32\x18\x1c \x01(\rH\x06R\voptionalU32\x88\x01\x01\x12K\n" +
-	"\x11optional_duration\x18\x1d \x01(\v2\x19.google.protobuf.DurationH\aR\x10optionalDuration\x88\x01\x01\x1aI\n" +
+	"\foptional_i32\x18\x1a \x01(\x05H\x05R\voptionalI32\x88\x01\x01\x12&\n" +
+	"\foptional_i64\x18\x1b \x01(\x03H\x06R\voptionalI64\x88\x01\x01\x12&\n" +
+	"\foptional_u32\x18\x1c \x01(\rH\aR\voptionalU32\x88\x01\x01\x12K\n" +
+	"\x11optional_duration\x18\x1d \x01(\v2\x19.google.protobuf.DurationH\bR\x10optionalDuration\x88\x01\x01\x128\n" +
+	"\bresolved\x18\x1e \x03(\v2\x1c.shapes.Shapes.ResolvedEntryR\bresolved\x122\n" +
+	"\bpassword\x18\x1f \x01(\v2\x14.shapes.AuthPasswordH\x01R\bpassword\x12#\n" +
+	"\x03pin\x18  \x01(\v2\x0f.shapes.AuthPinH\x01R\x03pin\x12,\n" +
+	"\x06header\x18! \x01(\v2\x12.shapes.AuthHeaderH\x01R\x06header\x1aI\n" +
 	"\fEntriesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12#\n" +
 	"\x05value\x18\x02 \x01(\v2\r.shapes.InnerR\x05value:\x028\x01\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
-	"\x06choiceB\x10\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aO\n" +
+	"\rResolvedEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12(\n" +
+	"\x05value\x18\x02 \x01(\v2\x12.shapes.StringListR\x05value:\x028\x01B\b\n" +
+	"\x06choiceB\x06\n" +
+	"\x04authB\x10\n" +
 	"\x0e_optional_flagB\x10\n" +
 	"\x0e_optional_nameB\x10\n" +
 	"\x0e_optional_blobB\x0f\n" +
@@ -510,29 +789,39 @@ func file_shapes_proto_rawDescGZIP() []byte {
 }
 
 var file_shapes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_shapes_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_shapes_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_shapes_proto_goTypes = []any{
 	(Kind)(0),                   // 0: shapes.Kind
 	(*Inner)(nil),               // 1: shapes.Inner
-	(*Shapes)(nil),              // 2: shapes.Shapes
-	nil,                         // 3: shapes.Shapes.EntriesEntry
-	nil,                         // 4: shapes.Shapes.LabelsEntry
-	(*durationpb.Duration)(nil), // 5: google.protobuf.Duration
+	(*StringList)(nil),          // 2: shapes.StringList
+	(*AuthPassword)(nil),        // 3: shapes.AuthPassword
+	(*AuthPin)(nil),             // 4: shapes.AuthPin
+	(*AuthHeader)(nil),          // 5: shapes.AuthHeader
+	(*Shapes)(nil),              // 6: shapes.Shapes
+	nil,                         // 7: shapes.Shapes.EntriesEntry
+	nil,                         // 8: shapes.Shapes.LabelsEntry
+	nil,                         // 9: shapes.Shapes.ResolvedEntry
+	(*durationpb.Duration)(nil), // 10: google.protobuf.Duration
 }
 var file_shapes_proto_depIdxs = []int32{
-	0, // 0: shapes.Shapes.kind:type_name -> shapes.Kind
-	1, // 1: shapes.Shapes.inner:type_name -> shapes.Inner
-	1, // 2: shapes.Shapes.inners:type_name -> shapes.Inner
-	1, // 3: shapes.Shapes.choice_msg:type_name -> shapes.Inner
-	3, // 4: shapes.Shapes.entries:type_name -> shapes.Shapes.EntriesEntry
-	4, // 5: shapes.Shapes.labels:type_name -> shapes.Shapes.LabelsEntry
-	5, // 6: shapes.Shapes.optional_duration:type_name -> google.protobuf.Duration
-	1, // 7: shapes.Shapes.EntriesEntry.value:type_name -> shapes.Inner
-	8, // [8:8] is the sub-list for method output_type
-	8, // [8:8] is the sub-list for method input_type
-	8, // [8:8] is the sub-list for extension type_name
-	8, // [8:8] is the sub-list for extension extendee
-	0, // [0:8] is the sub-list for field type_name
+	0,  // 0: shapes.Shapes.kind:type_name -> shapes.Kind
+	1,  // 1: shapes.Shapes.inner:type_name -> shapes.Inner
+	1,  // 2: shapes.Shapes.inners:type_name -> shapes.Inner
+	1,  // 3: shapes.Shapes.choice_msg:type_name -> shapes.Inner
+	7,  // 4: shapes.Shapes.entries:type_name -> shapes.Shapes.EntriesEntry
+	8,  // 5: shapes.Shapes.labels:type_name -> shapes.Shapes.LabelsEntry
+	10, // 6: shapes.Shapes.optional_duration:type_name -> google.protobuf.Duration
+	9,  // 7: shapes.Shapes.resolved:type_name -> shapes.Shapes.ResolvedEntry
+	3,  // 8: shapes.Shapes.password:type_name -> shapes.AuthPassword
+	4,  // 9: shapes.Shapes.pin:type_name -> shapes.AuthPin
+	5,  // 10: shapes.Shapes.header:type_name -> shapes.AuthHeader
+	1,  // 11: shapes.Shapes.EntriesEntry.value:type_name -> shapes.Inner
+	2,  // 12: shapes.Shapes.ResolvedEntry.value:type_name -> shapes.StringList
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_shapes_proto_init() }
@@ -540,9 +829,12 @@ func file_shapes_proto_init() {
 	if File_shapes_proto != nil {
 		return
 	}
-	file_shapes_proto_msgTypes[1].OneofWrappers = []any{
+	file_shapes_proto_msgTypes[5].OneofWrappers = []any{
 		(*Shapes_ChoiceMsg)(nil),
 		(*Shapes_ChoiceNum)(nil),
+		(*Shapes_Password)(nil),
+		(*Shapes_Pin)(nil),
+		(*Shapes_Header)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -550,7 +842,7 @@ func file_shapes_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shapes_proto_rawDesc), len(file_shapes_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

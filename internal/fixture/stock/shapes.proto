@@ -19,6 +19,26 @@ message Inner {
   string b = 2;
 }
 
+// StringList mirrors daemon IPList: a map value message that itself contains a
+// repeated string field.
+message StringList {
+  repeated string values = 1;
+}
+
+// Message-only oneof arms mirror proxy AuthenticateRequest / SyncMappingsRequest.
+message AuthPassword {
+  string password = 1;
+}
+
+message AuthPin {
+  string pin = 1;
+}
+
+message AuthHeader {
+  string name = 1;
+  string value = 2;
+}
+
 // Shapes exercises every wire feature the generator must emit:
 // scalars, enum, nested message, repeated (packed + unpacked), oneof, map.
 message Shapes {
@@ -71,4 +91,14 @@ message Shapes {
 
   // Optional well-known type mirrors daemon dnsRouteInterval.
   optional google.protobuf.Duration optional_duration = 29;
+
+  // map<string, message-with-repeated-string>: mirrors daemon resolvedIPs.
+  map<string, StringList> resolved = 30;
+
+  // oneof with several message arms: mirrors proxy authentication/sync requests.
+  oneof auth {
+    AuthPassword password = 31;
+    AuthPin pin = 32;
+    AuthHeader header = 33;
+  }
 }

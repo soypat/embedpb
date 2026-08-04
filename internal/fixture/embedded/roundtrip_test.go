@@ -24,7 +24,7 @@ import (
 // native run of protobuf-eval/path3b-shapes. It is NOT the stock runtime's byte
 // order — wire order is free, and the stock runtime appends oneofs after other
 // fields. Interop with the stock runtime is proven separately, below.
-const goldenHex = "08f9ffffffffffffffff011080808080802018ac0220808080808080800228f1c00130d3db80cb493defbeadde41efcdab89674523014dc3f54840519b91048b0abf05405801620668c3a96c6c6f6a06000102fdfeff70027a0a082a12066e65737465648201070102ac02f0a2048a0105616c7068618a010462657461920105080112017892010508021201799a0109080912056f6e656f66aa010c0a026b311206080b12027631aa010c0a026b321206081612027632b00101ba011272656c61792e6d6f636b2e696e76616c6964c20104c000020aca010b0a03656e76120474657374ca010d0a04726f6c65120570726f7879d001bffdffffffffffffff01d801ec9403e00108ea0102085a"
+const goldenHex = "08f9ffffffffffffffff011080808080802018ac0220808080808080800228f1c00130d3db80cb493defbeadde41efcdab89674523014dc3f54840519b91048b0abf05405801620668c3a96c6c6f6a06000102fdfeff70027a0a082a12066e65737465648201070102ac02f0a2048a0105616c7068618a010462657461920105080112017892010508021201799a0109080912056f6e656f66aa010c0a026b311206080b12027631aa010c0a026b321206081612027632b00101ba011272656c61792e6d6f636b2e696e76616c6964c20104c000020aca010b0a03656e76120474657374ca010d0a04726f6c65120570726f7879d001bffdffffffffffffff01d801ec9403e00108ea0102085af2011f0a06706565722d6112150a0931302e302e302e31300a08666430303a3a3130f201150a06706565722d62120b0a0931302e302e302e32308a020f0a06782d757365721205616c696365"
 
 // sample builds a fully-populated message exercising every feature, including
 // negative values (int32 varint sign-extension + zigzag) and a 2-key map.
@@ -67,6 +67,11 @@ func sample() *Shapes {
 		OptionalI64:      proto.Int64(51820),
 		OptionalU32:      proto.Uint32(8),
 		OptionalDuration: durationpb.New(90 * time.Second),
+		Resolved: map[string]*StringList{
+			"peer-a": {Values: []string{"10.0.0.10", "fd00::10"}},
+			"peer-b": {Values: []string{"10.0.0.20"}},
+		},
+		Auth: &Shapes_Header{Header: &AuthHeader{Name: "x-user", Value: "alice"}},
 	}
 }
 
@@ -110,6 +115,11 @@ func stockSample() *stock.Shapes {
 		OptionalI64:      proto.Int64(51820),
 		OptionalU32:      proto.Uint32(8),
 		OptionalDuration: durationpb.New(90 * time.Second),
+		Resolved: map[string]*stock.StringList{
+			"peer-a": {Values: []string{"10.0.0.10", "fd00::10"}},
+			"peer-b": {Values: []string{"10.0.0.20"}},
+		},
+		Auth: &stock.Shapes_Header{Header: &stock.AuthHeader{Name: "x-user", Value: "alice"}},
 	}
 }
 
@@ -155,8 +165,13 @@ func TestUnmarshalRoundTrip(t *testing.T) {
 		out.OptionalI32 == nil || *out.OptionalI32 != -321 ||
 		out.OptionalI64 == nil || *out.OptionalI64 != 51820 ||
 		out.OptionalU32 == nil || *out.OptionalU32 != 8 ||
-		out.OptionalDuration == nil || out.OptionalDuration.Seconds != 90 {
+		out.OptionalDuration == nil || out.OptionalDuration.Seconds != 90 ||
+		len(out.Resolved) != 2 || len(out.Resolved["peer-a"].Values) != 2 ||
+		out.Resolved["peer-a"].Values[1] != "fd00::10" {
 		t.Fatalf("decoded fields wrong: %+v", out)
+	}
+	if h, ok := out.Auth.(*Shapes_Header); !ok || h.Header.GetValue() != "alice" {
+		t.Fatalf("decoded auth oneof wrong: %#v", out.Auth)
 	}
 	cm, ok := out.Choice.(*Shapes_ChoiceMsg)
 	if !ok || cm.ChoiceMsg.B != "oneof" {
@@ -193,8 +208,13 @@ func TestStockInterop(t *testing.T) {
 		st.OptionalI32 == nil || *st.OptionalI32 != -321 ||
 		st.OptionalI64 == nil || *st.OptionalI64 != 51820 ||
 		st.OptionalU32 == nil || *st.OptionalU32 != 8 ||
-		st.OptionalDuration == nil || st.OptionalDuration.Seconds != 90 {
+		st.OptionalDuration == nil || st.OptionalDuration.Seconds != 90 ||
+		len(st.Resolved) != 2 || len(st.Resolved["peer-a"].Values) != 2 ||
+		st.Resolved["peer-a"].Values[1] != "fd00::10" {
 		t.Fatalf("stock decoded our bytes wrong: %+v", st)
+	}
+	if h, ok := st.Auth.(*stock.Shapes_Header); !ok || h.Header.GetValue() != "alice" {
+		t.Fatalf("stock decoded auth oneof wrong: %#v", st.Auth)
 	}
 	if cm, ok := st.Choice.(*stock.Shapes_ChoiceMsg); !ok || cm.ChoiceMsg.B != "oneof" {
 		t.Fatalf("stock decoded our oneof wrong: %#v", st.Choice)
@@ -218,11 +238,68 @@ func TestStockInterop(t *testing.T) {
 		mine.OptionalI32 == nil || *mine.OptionalI32 != -321 ||
 		mine.OptionalI64 == nil || *mine.OptionalI64 != 51820 ||
 		mine.OptionalU32 == nil || *mine.OptionalU32 != 8 ||
-		mine.OptionalDuration == nil || mine.OptionalDuration.Seconds != 90 {
+		mine.OptionalDuration == nil || mine.OptionalDuration.Seconds != 90 ||
+		len(mine.Resolved) != 2 || len(mine.Resolved["peer-a"].Values) != 2 ||
+		mine.Resolved["peer-a"].Values[1] != "fd00::10" {
 		t.Fatalf("we decoded stock bytes wrong: %+v", mine)
+	}
+	if h, ok := mine.Auth.(*Shapes_Header); !ok || h.Header.GetValue() != "alice" {
+		t.Fatalf("we decoded stock auth oneof wrong: %#v", mine.Auth)
 	}
 	if cm, ok := mine.Choice.(*Shapes_ChoiceMsg); !ok || cm.ChoiceMsg.B != "oneof" {
 		t.Fatalf("we decoded stock oneof wrong: %#v", mine.Choice)
+	}
+}
+
+func TestMessageOnlyOneofArms(t *testing.T) {
+	for _, tt := range []struct {
+		name string
+		msg  *Shapes
+		want func(*Shapes) bool
+	}{
+		{
+			name: "password",
+			msg:  &Shapes{Auth: &Shapes_Password{Password: &AuthPassword{Password: "secret"}}},
+			want: func(got *Shapes) bool {
+				v, ok := got.Auth.(*Shapes_Password)
+				return ok && v.Password.GetPassword() == "secret"
+			},
+		},
+		{
+			name: "pin",
+			msg:  &Shapes{Auth: &Shapes_Pin{Pin: &AuthPin{Pin: "123456"}}},
+			want: func(got *Shapes) bool {
+				v, ok := got.Auth.(*Shapes_Pin)
+				return ok && v.Pin.GetPin() == "123456"
+			},
+		},
+		{
+			name: "header",
+			msg:  &Shapes{Auth: &Shapes_Header{Header: &AuthHeader{Name: "x-user", Value: "alice"}}},
+			want: func(got *Shapes) bool {
+				v, ok := got.Auth.(*Shapes_Header)
+				return ok && v.Header.GetName() == "x-user" && v.Header.GetValue() == "alice"
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			b, err := proto.Marshal(tt.msg)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var got Shapes
+			if err := proto.Unmarshal(b, &got); err != nil {
+				t.Fatal(err)
+			}
+			if !tt.want(&got) {
+				t.Fatalf("decoded auth oneof wrong: %#v", got.Auth)
+			}
+
+			var st stock.Shapes
+			if err := proto.Unmarshal(b, &st); err != nil {
+				t.Fatalf("stock unmarshal: %v", err)
+			}
+		})
 	}
 }
 

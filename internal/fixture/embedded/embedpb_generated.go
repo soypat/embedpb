@@ -55,6 +55,289 @@ type Shapes_ChoiceNum struct{ ChoiceNum uint32 }
 
 func (*Shapes_ChoiceNum) isShapes_Choice() {}
 
+type isShapes_Auth interface{ isShapes_Auth() }
+type Shapes_Password struct{ Password *AuthPassword }
+
+func (*Shapes_Password) isShapes_Auth() {}
+
+type Shapes_Pin struct{ Pin *AuthPin }
+
+func (*Shapes_Pin) isShapes_Auth() {}
+
+type Shapes_Header struct{ Header *AuthHeader }
+
+func (*Shapes_Header) isShapes_Auth() {}
+
+type AuthHeader struct {
+	Name          string
+	Value         string
+	unknownFields protoreflect.RawFields
+}
+
+func (m *AuthHeader) Reset()         { *m = AuthHeader{} }
+func (m *AuthHeader) String() string { return fmt.Sprintf("AuthHeader{}") }
+func (m *AuthHeader) ProtoMessage()  {}
+func (m *AuthHeader) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+func (m *AuthHeader) GetValue() string {
+	if m != nil {
+		return m.Value
+	}
+	return ""
+}
+
+func (m *AuthHeader) ProtoReflect() protoreflect.Message {
+	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
+		NewFn:        func() protoreflect.Message { return (&AuthHeader{}).ProtoReflect() },
+		GetUnknownFn: func() protoreflect.RawFields { return m.unknownFields },
+		SetUnknownFn: func(f protoreflect.RawFields) { m.unknownFields = f }}
+}
+
+func (m *AuthHeader) sizeField() int {
+	n := 0
+	if m.Name != "" {
+		n += protowire.SizeTag(1) + protowire.SizeBytes(len(m.Name))
+	}
+	if m.Value != "" {
+		n += protowire.SizeTag(2) + protowire.SizeBytes(len(m.Value))
+	}
+	n += len(m.unknownFields)
+	return n
+}
+
+func (m *AuthHeader) marshalAppend(b []byte) ([]byte, error) {
+	if m.Name != "" {
+		b = protowire.AppendTag(b, 1, protowire.BytesType)
+		b = protowire.AppendString(b, m.Name)
+	}
+	if m.Value != "" {
+		b = protowire.AppendTag(b, 2, protowire.BytesType)
+		b = protowire.AppendString(b, m.Value)
+	}
+	b = append(b, m.unknownFields...)
+	return b, nil
+}
+
+func (m *AuthHeader) unmarshalMsg(b []byte) error {
+	for len(b) > 0 {
+		num, typ, n := protowire.ConsumeTag(b)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		start := b
+		b = b[n:]
+		var consumed int
+		switch num {
+		case 1:
+			v, k := protowire.ConsumeString(b)
+			consumed = k
+			m.Name = v
+		case 2:
+			v, k := protowire.ConsumeString(b)
+			consumed = k
+			m.Value = v
+		default:
+			skip := protowire.ConsumeFieldValue(num, typ, b)
+			if skip < 0 {
+				return protowire.ParseError(skip)
+			}
+			m.unknownFields = append(m.unknownFields, start[:n+skip]...)
+			b = b[skip:]
+			continue
+		}
+		if consumed < 0 {
+			return protowire.ParseError(consumed)
+		}
+		b = b[consumed:]
+	}
+	return nil
+}
+
+func (m *AuthHeader) MarshalJSON() ([]byte, error) { return m.AppendJSON(nil) }
+func (m *AuthHeader) AppendJSON(dst []byte) ([]byte, error) {
+	var err error
+	_ = err
+	dst = append(dst, '{')
+	dst = append(dst, "\"name\":"...)
+	dst = jsonString(dst, m.Name)
+	dst = append(dst, ',')
+	dst = append(dst, "\"value\":"...)
+	dst = jsonString(dst, m.Value)
+	dst = append(dst, ',')
+	dst = jsonEndObj(dst)
+	return dst, nil
+}
+
+type AuthPassword struct {
+	Password      string
+	unknownFields protoreflect.RawFields
+}
+
+func (m *AuthPassword) Reset()         { *m = AuthPassword{} }
+func (m *AuthPassword) String() string { return fmt.Sprintf("AuthPassword{}") }
+func (m *AuthPassword) ProtoMessage()  {}
+func (m *AuthPassword) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *AuthPassword) ProtoReflect() protoreflect.Message {
+	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
+		NewFn:        func() protoreflect.Message { return (&AuthPassword{}).ProtoReflect() },
+		GetUnknownFn: func() protoreflect.RawFields { return m.unknownFields },
+		SetUnknownFn: func(f protoreflect.RawFields) { m.unknownFields = f }}
+}
+
+func (m *AuthPassword) sizeField() int {
+	n := 0
+	if m.Password != "" {
+		n += protowire.SizeTag(1) + protowire.SizeBytes(len(m.Password))
+	}
+	n += len(m.unknownFields)
+	return n
+}
+
+func (m *AuthPassword) marshalAppend(b []byte) ([]byte, error) {
+	if m.Password != "" {
+		b = protowire.AppendTag(b, 1, protowire.BytesType)
+		b = protowire.AppendString(b, m.Password)
+	}
+	b = append(b, m.unknownFields...)
+	return b, nil
+}
+
+func (m *AuthPassword) unmarshalMsg(b []byte) error {
+	for len(b) > 0 {
+		num, typ, n := protowire.ConsumeTag(b)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		start := b
+		b = b[n:]
+		var consumed int
+		switch num {
+		case 1:
+			v, k := protowire.ConsumeString(b)
+			consumed = k
+			m.Password = v
+		default:
+			skip := protowire.ConsumeFieldValue(num, typ, b)
+			if skip < 0 {
+				return protowire.ParseError(skip)
+			}
+			m.unknownFields = append(m.unknownFields, start[:n+skip]...)
+			b = b[skip:]
+			continue
+		}
+		if consumed < 0 {
+			return protowire.ParseError(consumed)
+		}
+		b = b[consumed:]
+	}
+	return nil
+}
+
+func (m *AuthPassword) MarshalJSON() ([]byte, error) { return m.AppendJSON(nil) }
+func (m *AuthPassword) AppendJSON(dst []byte) ([]byte, error) {
+	var err error
+	_ = err
+	dst = append(dst, '{')
+	dst = append(dst, "\"password\":"...)
+	dst = jsonString(dst, m.Password)
+	dst = append(dst, ',')
+	dst = jsonEndObj(dst)
+	return dst, nil
+}
+
+type AuthPin struct {
+	Pin           string
+	unknownFields protoreflect.RawFields
+}
+
+func (m *AuthPin) Reset()         { *m = AuthPin{} }
+func (m *AuthPin) String() string { return fmt.Sprintf("AuthPin{}") }
+func (m *AuthPin) ProtoMessage()  {}
+func (m *AuthPin) GetPin() string {
+	if m != nil {
+		return m.Pin
+	}
+	return ""
+}
+
+func (m *AuthPin) ProtoReflect() protoreflect.Message {
+	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
+		NewFn:        func() protoreflect.Message { return (&AuthPin{}).ProtoReflect() },
+		GetUnknownFn: func() protoreflect.RawFields { return m.unknownFields },
+		SetUnknownFn: func(f protoreflect.RawFields) { m.unknownFields = f }}
+}
+
+func (m *AuthPin) sizeField() int {
+	n := 0
+	if m.Pin != "" {
+		n += protowire.SizeTag(1) + protowire.SizeBytes(len(m.Pin))
+	}
+	n += len(m.unknownFields)
+	return n
+}
+
+func (m *AuthPin) marshalAppend(b []byte) ([]byte, error) {
+	if m.Pin != "" {
+		b = protowire.AppendTag(b, 1, protowire.BytesType)
+		b = protowire.AppendString(b, m.Pin)
+	}
+	b = append(b, m.unknownFields...)
+	return b, nil
+}
+
+func (m *AuthPin) unmarshalMsg(b []byte) error {
+	for len(b) > 0 {
+		num, typ, n := protowire.ConsumeTag(b)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		start := b
+		b = b[n:]
+		var consumed int
+		switch num {
+		case 1:
+			v, k := protowire.ConsumeString(b)
+			consumed = k
+			m.Pin = v
+		default:
+			skip := protowire.ConsumeFieldValue(num, typ, b)
+			if skip < 0 {
+				return protowire.ParseError(skip)
+			}
+			m.unknownFields = append(m.unknownFields, start[:n+skip]...)
+			b = b[skip:]
+			continue
+		}
+		if consumed < 0 {
+			return protowire.ParseError(consumed)
+		}
+		b = b[consumed:]
+	}
+	return nil
+}
+
+func (m *AuthPin) MarshalJSON() ([]byte, error) { return m.AppendJSON(nil) }
+func (m *AuthPin) AppendJSON(dst []byte) ([]byte, error) {
+	var err error
+	_ = err
+	dst = append(dst, '{')
+	dst = append(dst, "\"pin\":"...)
+	dst = jsonString(dst, m.Pin)
+	dst = append(dst, ',')
+	dst = jsonEndObj(dst)
+	return dst, nil
+}
+
 type Inner struct {
 	A             uint32
 	B             string
@@ -188,6 +471,8 @@ type Shapes struct {
 	OptionalI64      *int64
 	OptionalU32      *uint32
 	OptionalDuration *durationpb.Duration
+	Resolved         map[string]*StringList
+	Auth             isShapes_Auth
 	unknownFields    protoreflect.RawFields
 }
 
@@ -374,6 +659,36 @@ func (m *Shapes) GetOptionalDuration() *durationpb.Duration {
 	}
 	return nil
 }
+func (m *Shapes) GetResolved() map[string]*StringList {
+	if m != nil {
+		return m.Resolved
+	}
+	return nil
+}
+func (m *Shapes) GetAuth() isShapes_Auth {
+	if m != nil {
+		return m.Auth
+	}
+	return nil
+}
+func (m *Shapes) GetPassword() *AuthPassword {
+	if v, ok := m.GetAuth().(*Shapes_Password); ok {
+		return v.Password
+	}
+	return nil
+}
+func (m *Shapes) GetPin() *AuthPin {
+	if v, ok := m.GetAuth().(*Shapes_Pin); ok {
+		return v.Pin
+	}
+	return nil
+}
+func (m *Shapes) GetHeader() *AuthHeader {
+	if v, ok := m.GetAuth().(*Shapes_Header); ok {
+		return v.Header
+	}
+	return nil
+}
 
 func (m *Shapes) ProtoReflect() protoreflect.Message {
 	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
@@ -476,6 +791,20 @@ func (m *Shapes) sizeField() int {
 	}
 	if m.OptionalDuration != nil {
 		n += protowire.SizeTag(29) + protowire.SizeBytes(extSize_durationpb_Duration(m.OptionalDuration))
+	}
+	for k, v := range m.Resolved {
+		n += protowire.SizeTag(30) + protowire.SizeBytes(mapEntry_Shapes_Resolved(k, v))
+	}
+	switch c := m.Auth.(type) {
+	case *Shapes_Password:
+		_ = c
+		n += protowire.SizeTag(31) + protowire.SizeBytes(c.Password.sizeField())
+	case *Shapes_Pin:
+		_ = c
+		n += protowire.SizeTag(32) + protowire.SizeBytes(c.Pin.sizeField())
+	case *Shapes_Header:
+		_ = c
+		n += protowire.SizeTag(33) + protowire.SizeBytes(c.Header.sizeField())
 	}
 	n += len(m.unknownFields)
 	return n
@@ -618,6 +947,31 @@ func (m *Shapes) marshalAppend(b []byte) ([]byte, error) {
 	if m.OptionalDuration != nil {
 		sub := extAppend_durationpb_Duration(nil, m.OptionalDuration)
 		b = protowire.AppendTag(b, 29, protowire.BytesType)
+		b = protowire.AppendBytes(b, sub)
+	}
+	if len(m.Resolved) > 0 {
+		keys := make([]string, 0, len(m.Resolved))
+		for k := range m.Resolved {
+			keys = append(keys, k)
+		}
+		sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+		for _, k := range keys {
+			b = protowire.AppendTag(b, 30, protowire.BytesType)
+			b = protowire.AppendBytes(b, appendEntry_Shapes_Resolved(nil, k, m.Resolved[k]))
+		}
+	}
+	switch c := m.Auth.(type) {
+	case *Shapes_Password:
+		sub, _ := c.Password.marshalAppend(nil)
+		b = protowire.AppendTag(b, 31, protowire.BytesType)
+		b = protowire.AppendBytes(b, sub)
+	case *Shapes_Pin:
+		sub, _ := c.Pin.marshalAppend(nil)
+		b = protowire.AppendTag(b, 32, protowire.BytesType)
+		b = protowire.AppendBytes(b, sub)
+	case *Shapes_Header:
+		sub, _ := c.Header.marshalAppend(nil)
+		b = protowire.AppendTag(b, 33, protowire.BytesType)
 		b = protowire.AppendBytes(b, sub)
 	}
 	b = append(b, m.unknownFields...)
@@ -804,6 +1158,52 @@ func (m *Shapes) unmarshalMsg(b []byte) error {
 			if consumed >= 0 {
 				m.OptionalDuration = extDecode_durationpb_Duration(v)
 			}
+		case 30:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			if consumed >= 0 {
+				if m.Resolved == nil {
+					m.Resolved = make(map[string]*StringList)
+				}
+				mk, mv := decodeEntry_Shapes_Resolved(v)
+				m.Resolved[mk] = mv
+			}
+		case 31:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			if consumed >= 0 {
+				var mv *AuthPassword
+				mm := &AuthPassword{}
+				if err := mm.unmarshalMsg(v); err != nil {
+					return err
+				}
+				mv = mm
+				m.Auth = &Shapes_Password{Password: mv}
+			}
+		case 32:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			if consumed >= 0 {
+				var mv *AuthPin
+				mm := &AuthPin{}
+				if err := mm.unmarshalMsg(v); err != nil {
+					return err
+				}
+				mv = mm
+				m.Auth = &Shapes_Pin{Pin: mv}
+			}
+		case 33:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			if consumed >= 0 {
+				var mv *AuthHeader
+				mm := &AuthHeader{}
+				if err := mm.unmarshalMsg(v); err != nil {
+					return err
+				}
+				mv = mm
+				m.Auth = &Shapes_Header{Header: mv}
+			}
 		default:
 			skip := protowire.ConsumeFieldValue(num, typ, b)
 			if skip < 0 {
@@ -925,6 +1325,63 @@ func decodeEntry_Shapes_Labels(b []byte) (string, string) {
 			break
 		}
 		b = b[consumed:]
+	}
+	return k, v
+}
+
+func mapEntry_Shapes_Resolved(k string, v *StringList) int {
+	n := 0
+	if k != "" {
+		n += protowire.SizeTag(1) + protowire.SizeBytes(len(k))
+	}
+	if v != nil {
+		n += protowire.SizeTag(2) + protowire.SizeBytes(v.sizeField())
+	}
+	return n
+}
+func appendEntry_Shapes_Resolved(b []byte, k string, v *StringList) []byte {
+	if k != "" {
+		b = protowire.AppendTag(b, 1, protowire.BytesType)
+		b = protowire.AppendString(b, k)
+	}
+	if v != nil {
+		sub, _ := v.marshalAppend(nil)
+		b = protowire.AppendTag(b, 2, protowire.BytesType)
+		b = protowire.AppendBytes(b, sub)
+	}
+	return b
+}
+func decodeEntry_Shapes_Resolved(b []byte) (string, *StringList) {
+	var k string
+	var v *StringList
+	for len(b) > 0 {
+		num, typ, n := protowire.ConsumeTag(b)
+		if n < 0 {
+			break
+		}
+		b = b[n:]
+		var consumed int
+		switch num {
+		case 1:
+			vv, kk := protowire.ConsumeString(b)
+			consumed = kk
+			k = vv
+		case 2:
+			vv, kk := protowire.ConsumeBytes(b)
+			consumed = kk
+			mm := &StringList{}
+			_ = mm.unmarshalMsg(vv)
+			v = mm
+		default:
+			consumed = protowire.ConsumeFieldValue(num, typ, b)
+		}
+		if consumed < 0 {
+			break
+		}
+		b = b[consumed:]
+	}
+	if v == nil {
+		v = &StringList{}
 	}
 	return k, v
 }
@@ -1136,6 +1593,158 @@ func (m *Shapes) AppendJSON(dst []byte) ([]byte, error) {
 		dst = extJSON_durationpb_Duration(dst, m.OptionalDuration)
 		dst = append(dst, ',')
 	}
+	dst = append(dst, "\"resolved\":"...)
+	dst = append(dst, '{')
+	{
+		mk := make([]string, 0, len(m.Resolved))
+		for k := range m.Resolved {
+			mk = append(mk, k)
+		}
+		sort.Slice(mk, func(i, j int) bool { return mk[i] < mk[j] })
+		for i, k := range mk {
+			if i > 0 {
+				dst = append(dst, ',')
+			}
+			dst = jsonString(dst, k)
+			dst = append(dst, ':')
+			v := m.Resolved[k]
+			if v != nil {
+				dst, err = v.AppendJSON(dst)
+				if err != nil {
+					return dst, err
+				}
+			} else {
+				dst = append(dst, "null"...)
+			}
+		}
+	}
+	dst = append(dst, '}')
+	dst = append(dst, ',')
+	switch c := m.Auth.(type) {
+	case *Shapes_Password:
+		dst = append(dst, "\"password\":"...)
+		if c.Password != nil {
+			dst, err = c.Password.AppendJSON(dst)
+			if err != nil {
+				return dst, err
+			}
+		} else {
+			dst = append(dst, "null"...)
+		}
+		dst = append(dst, ',')
+	case *Shapes_Pin:
+		dst = append(dst, "\"pin\":"...)
+		if c.Pin != nil {
+			dst, err = c.Pin.AppendJSON(dst)
+			if err != nil {
+				return dst, err
+			}
+		} else {
+			dst = append(dst, "null"...)
+		}
+		dst = append(dst, ',')
+	case *Shapes_Header:
+		dst = append(dst, "\"header\":"...)
+		if c.Header != nil {
+			dst, err = c.Header.AppendJSON(dst)
+			if err != nil {
+				return dst, err
+			}
+		} else {
+			dst = append(dst, "null"...)
+		}
+		dst = append(dst, ',')
+	}
+	dst = jsonEndObj(dst)
+	return dst, nil
+}
+
+type StringList struct {
+	Values        []string
+	unknownFields protoreflect.RawFields
+}
+
+func (m *StringList) Reset()         { *m = StringList{} }
+func (m *StringList) String() string { return fmt.Sprintf("StringList{}") }
+func (m *StringList) ProtoMessage()  {}
+func (m *StringList) GetValues() []string {
+	if m != nil {
+		return m.Values
+	}
+	return nil
+}
+
+func (m *StringList) ProtoReflect() protoreflect.Message {
+	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
+		NewFn:        func() protoreflect.Message { return (&StringList{}).ProtoReflect() },
+		GetUnknownFn: func() protoreflect.RawFields { return m.unknownFields },
+		SetUnknownFn: func(f protoreflect.RawFields) { m.unknownFields = f }}
+}
+
+func (m *StringList) sizeField() int {
+	n := 0
+	for _, v := range m.Values {
+		n += protowire.SizeTag(1) + protowire.SizeBytes(len(v))
+	}
+	n += len(m.unknownFields)
+	return n
+}
+
+func (m *StringList) marshalAppend(b []byte) ([]byte, error) {
+	for _, v := range m.Values {
+		b = protowire.AppendTag(b, 1, protowire.BytesType)
+		b = protowire.AppendString(b, v)
+	}
+	b = append(b, m.unknownFields...)
+	return b, nil
+}
+
+func (m *StringList) unmarshalMsg(b []byte) error {
+	for len(b) > 0 {
+		num, typ, n := protowire.ConsumeTag(b)
+		if n < 0 {
+			return protowire.ParseError(n)
+		}
+		start := b
+		b = b[n:]
+		var consumed int
+		switch num {
+		case 1:
+			v, k := protowire.ConsumeString(b)
+			consumed = k
+			m.Values = append(m.Values, v)
+		default:
+			skip := protowire.ConsumeFieldValue(num, typ, b)
+			if skip < 0 {
+				return protowire.ParseError(skip)
+			}
+			m.unknownFields = append(m.unknownFields, start[:n+skip]...)
+			b = b[skip:]
+			continue
+		}
+		if consumed < 0 {
+			return protowire.ParseError(consumed)
+		}
+		b = b[consumed:]
+	}
+	return nil
+}
+
+func (m *StringList) MarshalJSON() ([]byte, error) { return m.AppendJSON(nil) }
+func (m *StringList) AppendJSON(dst []byte) ([]byte, error) {
+	var err error
+	_ = err
+	dst = append(dst, '{')
+	dst = append(dst, "\"values\":"...)
+	dst = append(dst, '[')
+	for i, v := range m.Values {
+		if i > 0 {
+			dst = append(dst, ',')
+		}
+		dst = jsonString(dst, v)
+	}
+	dst = append(dst, ']')
+	dst = append(dst, ',')
 	dst = jsonEndObj(dst)
 	return dst, nil
 }
