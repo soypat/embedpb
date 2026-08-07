@@ -136,7 +136,7 @@ func TestProxyOneofsAndOptionalMessage(t *testing.T) {
 		ServiceId:       "svc-1",
 		AccountId:       "account-1",
 		Status:          ProxyStatus_PROXY_STATUS_ERROR,
-		ErrorMessage:    proto.String("certificate failed"),
+		ErrorMessage:    new("certificate failed"),
 		InboundListener: &ProxyInboundListener{TunnelIp: "100.64.0.10", HttpsPort: 443, HttpPort: 80},
 	}
 	b, err := proto.Marshal(status)

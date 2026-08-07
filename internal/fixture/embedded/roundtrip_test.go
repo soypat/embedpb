@@ -56,8 +56,8 @@ func sample() *Shapes {
 			"k1": {A: 11, B: "v1"},
 			"k2": {A: 22, B: "v2"},
 		},
-		OptionalFlag: proto.Bool(true),
-		OptionalName: proto.String("relay.mock.invalid"),
+		OptionalFlag: new(true),
+		OptionalName: new("relay.mock.invalid"),
 		OptionalBlob: []byte{192, 0, 2, 10},
 		Labels: map[string]string{
 			"env":  "test",
@@ -109,8 +109,8 @@ func stockSample() *stock.Shapes {
 			"k1": {A: 11, B: "v1"},
 			"k2": {A: 22, B: "v2"},
 		},
-		OptionalFlag: proto.Bool(true),
-		OptionalName: proto.String("relay.mock.invalid"),
+		OptionalFlag: new(true),
+		OptionalName: new("relay.mock.invalid"),
 		OptionalBlob: []byte{192, 0, 2, 10},
 		Labels: map[string]string{
 			"env":  "test",
