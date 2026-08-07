@@ -367,7 +367,20 @@ type Shapes struct {
 	//	*Shapes_Password
 	//	*Shapes_Pin
 	//	*Shapes_Header
-	Auth          isShapes_Auth `protobuf_oneof:"auth"`
+	Auth isShapes_Auth `protobuf_oneof:"auth"`
+	// Additional compact NetBird-like shapes.
+	Kinds         []Kind   `protobuf:"varint,34,rep,packed,name=kinds,proto3,enum=shapes.Kind" json:"kinds,omitempty"`                                  // repeated enum / packed numeric
+	Blobs         [][]byte `protobuf:"bytes,35,rep,name=blobs,proto3" json:"blobs,omitempty"`                                                           // repeated bytes
+	OptionalKind  *Kind    `protobuf:"varint,36,opt,name=optional_kind,json=optionalKind,proto3,enum=shapes.Kind,oneof" json:"optional_kind,omitempty"` // optional enum
+	OptionalInner *Inner   `protobuf:"bytes,37,opt,name=optional_inner,json=optionalInner,proto3,oneof" json:"optional_inner,omitempty"`                // optional local message
+	// oneof with scalar/string/bytes arms.
+	//
+	// Types that are valid to be assigned to ScalarChoice:
+	//
+	//	*Shapes_ChoiceText
+	//	*Shapes_ChoiceData
+	//	*Shapes_ChoiceFlag
+	ScalarChoice  isShapes_ScalarChoice `protobuf_oneof:"scalar_choice"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -657,6 +670,68 @@ func (x *Shapes) GetHeader() *AuthHeader {
 	return nil
 }
 
+func (x *Shapes) GetKinds() []Kind {
+	if x != nil {
+		return x.Kinds
+	}
+	return nil
+}
+
+func (x *Shapes) GetBlobs() [][]byte {
+	if x != nil {
+		return x.Blobs
+	}
+	return nil
+}
+
+func (x *Shapes) GetOptionalKind() Kind {
+	if x != nil && x.OptionalKind != nil {
+		return *x.OptionalKind
+	}
+	return Kind_KIND_UNKNOWN
+}
+
+func (x *Shapes) GetOptionalInner() *Inner {
+	if x != nil {
+		return x.OptionalInner
+	}
+	return nil
+}
+
+func (x *Shapes) GetScalarChoice() isShapes_ScalarChoice {
+	if x != nil {
+		return x.ScalarChoice
+	}
+	return nil
+}
+
+func (x *Shapes) GetChoiceText() string {
+	if x != nil {
+		if x, ok := x.ScalarChoice.(*Shapes_ChoiceText); ok {
+			return x.ChoiceText
+		}
+	}
+	return ""
+}
+
+func (x *Shapes) GetChoiceData() []byte {
+	if x != nil {
+		if x, ok := x.ScalarChoice.(*Shapes_ChoiceData); ok {
+			return x.ChoiceData
+		}
+	}
+	return nil
+}
+
+func (x *Shapes) GetChoiceFlag() bool {
+	if x != nil {
+		if x, ok := x.ScalarChoice.(*Shapes_ChoiceFlag); ok {
+			return x.ChoiceFlag
+		}
+	}
+	return false
+}
+
 type isShapes_Choice interface {
 	isShapes_Choice()
 }
@@ -695,6 +770,28 @@ func (*Shapes_Pin) isShapes_Auth() {}
 
 func (*Shapes_Header) isShapes_Auth() {}
 
+type isShapes_ScalarChoice interface {
+	isShapes_ScalarChoice()
+}
+
+type Shapes_ChoiceText struct {
+	ChoiceText string `protobuf:"bytes,38,opt,name=choice_text,json=choiceText,proto3,oneof"`
+}
+
+type Shapes_ChoiceData struct {
+	ChoiceData []byte `protobuf:"bytes,39,opt,name=choice_data,json=choiceData,proto3,oneof"`
+}
+
+type Shapes_ChoiceFlag struct {
+	ChoiceFlag bool `protobuf:"varint,40,opt,name=choice_flag,json=choiceFlag,proto3,oneof"`
+}
+
+func (*Shapes_ChoiceText) isShapes_ScalarChoice() {}
+
+func (*Shapes_ChoiceData) isShapes_ScalarChoice() {}
+
+func (*Shapes_ChoiceFlag) isShapes_ScalarChoice() {}
+
 var File_shapes_proto protoreflect.FileDescriptor
 
 const file_shapes_proto_rawDesc = "" +
@@ -713,7 +810,7 @@ const file_shapes_proto_rawDesc = "" +
 	"\n" +
 	"AuthHeader\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"\xb2\v\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\xfe\r\n" +
 	"\x06Shapes\x12\x10\n" +
 	"\x03i32\x18\x01 \x01(\x05R\x03i32\x12\x10\n" +
 	"\x03i64\x18\x02 \x01(\x03R\x03i64\x12\x10\n" +
@@ -739,18 +836,29 @@ const file_shapes_proto_rawDesc = "" +
 	"\n" +
 	"choice_num\x18\x14 \x01(\rH\x00R\tchoiceNum\x125\n" +
 	"\aentries\x18\x15 \x03(\v2\x1b.shapes.Shapes.EntriesEntryR\aentries\x12(\n" +
-	"\roptional_flag\x18\x16 \x01(\bH\x02R\foptionalFlag\x88\x01\x01\x12(\n" +
-	"\roptional_name\x18\x17 \x01(\tH\x03R\foptionalName\x88\x01\x01\x12(\n" +
-	"\roptional_blob\x18\x18 \x01(\fH\x04R\foptionalBlob\x88\x01\x01\x122\n" +
+	"\roptional_flag\x18\x16 \x01(\bH\x03R\foptionalFlag\x88\x01\x01\x12(\n" +
+	"\roptional_name\x18\x17 \x01(\tH\x04R\foptionalName\x88\x01\x01\x12(\n" +
+	"\roptional_blob\x18\x18 \x01(\fH\x05R\foptionalBlob\x88\x01\x01\x122\n" +
 	"\x06labels\x18\x19 \x03(\v2\x1a.shapes.Shapes.LabelsEntryR\x06labels\x12&\n" +
-	"\foptional_i32\x18\x1a \x01(\x05H\x05R\voptionalI32\x88\x01\x01\x12&\n" +
-	"\foptional_i64\x18\x1b \x01(\x03H\x06R\voptionalI64\x88\x01\x01\x12&\n" +
-	"\foptional_u32\x18\x1c \x01(\rH\aR\voptionalU32\x88\x01\x01\x12K\n" +
-	"\x11optional_duration\x18\x1d \x01(\v2\x19.google.protobuf.DurationH\bR\x10optionalDuration\x88\x01\x01\x128\n" +
+	"\foptional_i32\x18\x1a \x01(\x05H\x06R\voptionalI32\x88\x01\x01\x12&\n" +
+	"\foptional_i64\x18\x1b \x01(\x03H\aR\voptionalI64\x88\x01\x01\x12&\n" +
+	"\foptional_u32\x18\x1c \x01(\rH\bR\voptionalU32\x88\x01\x01\x12K\n" +
+	"\x11optional_duration\x18\x1d \x01(\v2\x19.google.protobuf.DurationH\tR\x10optionalDuration\x88\x01\x01\x128\n" +
 	"\bresolved\x18\x1e \x03(\v2\x1c.shapes.Shapes.ResolvedEntryR\bresolved\x122\n" +
 	"\bpassword\x18\x1f \x01(\v2\x14.shapes.AuthPasswordH\x01R\bpassword\x12#\n" +
 	"\x03pin\x18  \x01(\v2\x0f.shapes.AuthPinH\x01R\x03pin\x12,\n" +
-	"\x06header\x18! \x01(\v2\x12.shapes.AuthHeaderH\x01R\x06header\x1aI\n" +
+	"\x06header\x18! \x01(\v2\x12.shapes.AuthHeaderH\x01R\x06header\x12\"\n" +
+	"\x05kinds\x18\" \x03(\x0e2\f.shapes.KindR\x05kinds\x12\x14\n" +
+	"\x05blobs\x18# \x03(\fR\x05blobs\x126\n" +
+	"\roptional_kind\x18$ \x01(\x0e2\f.shapes.KindH\n" +
+	"R\foptionalKind\x88\x01\x01\x129\n" +
+	"\x0eoptional_inner\x18% \x01(\v2\r.shapes.InnerH\vR\roptionalInner\x88\x01\x01\x12!\n" +
+	"\vchoice_text\x18& \x01(\tH\x02R\n" +
+	"choiceText\x12!\n" +
+	"\vchoice_data\x18' \x01(\fH\x02R\n" +
+	"choiceData\x12!\n" +
+	"\vchoice_flag\x18( \x01(\bH\x02R\n" +
+	"choiceFlag\x1aI\n" +
 	"\fEntriesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12#\n" +
 	"\x05value\x18\x02 \x01(\v2\r.shapes.InnerR\x05value:\x028\x01\x1a9\n" +
@@ -761,14 +869,17 @@ const file_shapes_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12(\n" +
 	"\x05value\x18\x02 \x01(\v2\x12.shapes.StringListR\x05value:\x028\x01B\b\n" +
 	"\x06choiceB\x06\n" +
-	"\x04authB\x10\n" +
+	"\x04authB\x0f\n" +
+	"\rscalar_choiceB\x10\n" +
 	"\x0e_optional_flagB\x10\n" +
 	"\x0e_optional_nameB\x10\n" +
 	"\x0e_optional_blobB\x0f\n" +
 	"\r_optional_i32B\x0f\n" +
 	"\r_optional_i64B\x0f\n" +
 	"\r_optional_u32B\x14\n" +
-	"\x12_optional_duration*0\n" +
+	"\x12_optional_durationB\x10\n" +
+	"\x0e_optional_kindB\x11\n" +
+	"\x0f_optional_inner*0\n" +
 	"\x04Kind\x12\x10\n" +
 	"\fKIND_UNKNOWN\x10\x00\x12\n" +
 	"\n" +
@@ -815,13 +926,16 @@ var file_shapes_proto_depIdxs = []int32{
 	3,  // 8: shapes.Shapes.password:type_name -> shapes.AuthPassword
 	4,  // 9: shapes.Shapes.pin:type_name -> shapes.AuthPin
 	5,  // 10: shapes.Shapes.header:type_name -> shapes.AuthHeader
-	1,  // 11: shapes.Shapes.EntriesEntry.value:type_name -> shapes.Inner
-	2,  // 12: shapes.Shapes.ResolvedEntry.value:type_name -> shapes.StringList
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	0,  // 11: shapes.Shapes.kinds:type_name -> shapes.Kind
+	0,  // 12: shapes.Shapes.optional_kind:type_name -> shapes.Kind
+	1,  // 13: shapes.Shapes.optional_inner:type_name -> shapes.Inner
+	1,  // 14: shapes.Shapes.EntriesEntry.value:type_name -> shapes.Inner
+	2,  // 15: shapes.Shapes.ResolvedEntry.value:type_name -> shapes.StringList
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_shapes_proto_init() }
@@ -835,6 +949,9 @@ func file_shapes_proto_init() {
 		(*Shapes_Password)(nil),
 		(*Shapes_Pin)(nil),
 		(*Shapes_Header)(nil),
+		(*Shapes_ChoiceText)(nil),
+		(*Shapes_ChoiceData)(nil),
+		(*Shapes_ChoiceFlag)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

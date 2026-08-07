@@ -68,6 +68,19 @@ type Shapes_Header struct{ Header *AuthHeader }
 
 func (*Shapes_Header) isShapes_Auth() {}
 
+type isShapes_ScalarChoice interface{ isShapes_ScalarChoice() }
+type Shapes_ChoiceText struct{ ChoiceText string }
+
+func (*Shapes_ChoiceText) isShapes_ScalarChoice() {}
+
+type Shapes_ChoiceData struct{ ChoiceData []byte }
+
+func (*Shapes_ChoiceData) isShapes_ScalarChoice() {}
+
+type Shapes_ChoiceFlag struct{ ChoiceFlag bool }
+
+func (*Shapes_ChoiceFlag) isShapes_ScalarChoice() {}
+
 type AuthHeader struct {
 	Name          string
 	Value         string
@@ -473,6 +486,11 @@ type Shapes struct {
 	OptionalDuration *durationpb.Duration
 	Resolved         map[string]*StringList
 	Auth             isShapes_Auth
+	Kinds            []Kind
+	Blobs            [][]byte
+	OptionalKind     *Kind
+	OptionalInner    *Inner
+	ScalarChoice     isShapes_ScalarChoice
 	unknownFields    protoreflect.RawFields
 }
 
@@ -689,6 +707,54 @@ func (m *Shapes) GetHeader() *AuthHeader {
 	}
 	return nil
 }
+func (m *Shapes) GetKinds() []Kind {
+	if m != nil {
+		return m.Kinds
+	}
+	return nil
+}
+func (m *Shapes) GetBlobs() [][]byte {
+	if m != nil {
+		return m.Blobs
+	}
+	return nil
+}
+func (m *Shapes) GetOptionalKind() Kind {
+	if m != nil && m.OptionalKind != nil {
+		return *m.OptionalKind
+	}
+	return Kind(0)
+}
+func (m *Shapes) GetOptionalInner() *Inner {
+	if m != nil {
+		return m.OptionalInner
+	}
+	return nil
+}
+func (m *Shapes) GetScalarChoice() isShapes_ScalarChoice {
+	if m != nil {
+		return m.ScalarChoice
+	}
+	return nil
+}
+func (m *Shapes) GetChoiceText() string {
+	if v, ok := m.GetScalarChoice().(*Shapes_ChoiceText); ok {
+		return v.ChoiceText
+	}
+	return ""
+}
+func (m *Shapes) GetChoiceData() []byte {
+	if v, ok := m.GetScalarChoice().(*Shapes_ChoiceData); ok {
+		return v.ChoiceData
+	}
+	return nil
+}
+func (m *Shapes) GetChoiceFlag() bool {
+	if v, ok := m.GetScalarChoice().(*Shapes_ChoiceFlag); ok {
+		return v.ChoiceFlag
+	}
+	return false
+}
 
 func (m *Shapes) ProtoReflect() protoreflect.Message {
 	return msgReflect{MarshalFn: m.marshalAppend, SizeFn: m.sizeField, UnmarshalFn: m.unmarshalMsg, Iface: m, Valid: m != nil,
@@ -805,6 +871,33 @@ func (m *Shapes) sizeField() int {
 	case *Shapes_Header:
 		_ = c
 		n += protowire.SizeTag(33) + protowire.SizeBytes(c.Header.sizeField())
+	}
+	if len(m.Kinds) > 0 {
+		pn := 0
+		for _, v := range m.Kinds {
+			pn += protowire.SizeVarint(uint64(int64(v)))
+		}
+		n += protowire.SizeTag(34) + protowire.SizeBytes(pn)
+	}
+	for _, v := range m.Blobs {
+		n += protowire.SizeTag(35) + protowire.SizeBytes(len(v))
+	}
+	if m.OptionalKind != nil {
+		n += protowire.SizeTag(36) + protowire.SizeVarint(uint64(int64(*m.OptionalKind)))
+	}
+	if m.OptionalInner != nil {
+		n += protowire.SizeTag(37) + protowire.SizeBytes(m.OptionalInner.sizeField())
+	}
+	switch c := m.ScalarChoice.(type) {
+	case *Shapes_ChoiceText:
+		_ = c
+		n += protowire.SizeTag(38) + protowire.SizeBytes(len(c.ChoiceText))
+	case *Shapes_ChoiceData:
+		_ = c
+		n += protowire.SizeTag(39) + protowire.SizeBytes(len(c.ChoiceData))
+	case *Shapes_ChoiceFlag:
+		_ = c
+		n += protowire.SizeTag(40) + protowire.SizeVarint(embedBool(c.ChoiceFlag))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -973,6 +1066,38 @@ func (m *Shapes) marshalAppend(b []byte) ([]byte, error) {
 		sub, _ := c.Header.marshalAppend(nil)
 		b = protowire.AppendTag(b, 33, protowire.BytesType)
 		b = protowire.AppendBytes(b, sub)
+	}
+	if len(m.Kinds) > 0 {
+		var packed []byte
+		for _, v := range m.Kinds {
+			packed = protowire.AppendVarint(packed, uint64(int64(v)))
+		}
+		b = protowire.AppendTag(b, 34, protowire.BytesType)
+		b = protowire.AppendBytes(b, packed)
+	}
+	for _, v := range m.Blobs {
+		b = protowire.AppendTag(b, 35, protowire.BytesType)
+		b = protowire.AppendBytes(b, v)
+	}
+	if m.OptionalKind != nil {
+		b = protowire.AppendTag(b, 36, protowire.VarintType)
+		b = protowire.AppendVarint(b, uint64(int64(*m.OptionalKind)))
+	}
+	if m.OptionalInner != nil {
+		sub, _ := m.OptionalInner.marshalAppend(nil)
+		b = protowire.AppendTag(b, 37, protowire.BytesType)
+		b = protowire.AppendBytes(b, sub)
+	}
+	switch c := m.ScalarChoice.(type) {
+	case *Shapes_ChoiceText:
+		b = protowire.AppendTag(b, 38, protowire.BytesType)
+		b = protowire.AppendString(b, c.ChoiceText)
+	case *Shapes_ChoiceData:
+		b = protowire.AppendTag(b, 39, protowire.BytesType)
+		b = protowire.AppendBytes(b, c.ChoiceData)
+	case *Shapes_ChoiceFlag:
+		b = protowire.AppendTag(b, 40, protowire.VarintType)
+		b = protowire.AppendVarint(b, embedBool(c.ChoiceFlag))
 	}
 	b = append(b, m.unknownFields...)
 	return b, nil
@@ -1204,6 +1329,54 @@ func (m *Shapes) unmarshalMsg(b []byte) error {
 				mv = mm
 				m.Auth = &Shapes_Header{Header: mv}
 			}
+		case 34:
+			if typ == protowire.BytesType {
+				pk, k := protowire.ConsumeBytes(b)
+				consumed = k
+				for len(pk) > 0 {
+					v, kk := protowire.ConsumeVarint(pk)
+					if kk < 0 {
+						return protowire.ParseError(kk)
+					}
+					m.Kinds = append(m.Kinds, Kind(v))
+					pk = pk[kk:]
+				}
+			} else {
+				v, k := protowire.ConsumeVarint(b)
+				consumed = k
+				m.Kinds = append(m.Kinds, Kind(v))
+			}
+		case 35:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			m.Blobs = append(m.Blobs, append([]byte(nil), v...))
+		case 36:
+			v, k := protowire.ConsumeVarint(b)
+			consumed = k
+			tmp := Kind(v)
+			m.OptionalKind = &tmp
+		case 37:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			if consumed >= 0 {
+				mm := &Inner{}
+				if err := mm.unmarshalMsg(v); err != nil {
+					return err
+				}
+				m.OptionalInner = mm
+			}
+		case 38:
+			v, k := protowire.ConsumeString(b)
+			consumed = k
+			m.ScalarChoice = &Shapes_ChoiceText{ChoiceText: v}
+		case 39:
+			v, k := protowire.ConsumeBytes(b)
+			consumed = k
+			m.ScalarChoice = &Shapes_ChoiceData{ChoiceData: v}
+		case 40:
+			v, k := protowire.ConsumeVarint(b)
+			consumed = k
+			m.ScalarChoice = &Shapes_ChoiceFlag{ChoiceFlag: v != 0}
 		default:
 			skip := protowire.ConsumeFieldValue(num, typ, b)
 			if skip < 0 {
@@ -1653,6 +1826,65 @@ func (m *Shapes) AppendJSON(dst []byte) ([]byte, error) {
 		} else {
 			dst = append(dst, "null"...)
 		}
+		dst = append(dst, ',')
+	}
+	dst = append(dst, "\"kinds\":"...)
+	dst = append(dst, '[')
+	for i, v := range m.Kinds {
+		if i > 0 {
+			dst = append(dst, ',')
+		}
+		if s, ok := Kind_name[int32(v)]; ok {
+			dst = jsonString(dst, s)
+		} else {
+			dst = strconv.AppendInt(dst, int64(v), 10)
+		}
+	}
+	dst = append(dst, ']')
+	dst = append(dst, ',')
+	dst = append(dst, "\"blobs\":"...)
+	dst = append(dst, '[')
+	for i, v := range m.Blobs {
+		if i > 0 {
+			dst = append(dst, ',')
+		}
+		dst = jsonBytes(dst, v)
+	}
+	dst = append(dst, ']')
+	dst = append(dst, ',')
+	if m.OptionalKind != nil {
+		dst = append(dst, "\"optional_kind\":"...)
+		if s, ok := Kind_name[int32(*m.OptionalKind)]; ok {
+			dst = jsonString(dst, s)
+		} else {
+			dst = strconv.AppendInt(dst, int64(*m.OptionalKind), 10)
+		}
+		dst = append(dst, ',')
+	}
+	if m.OptionalInner != nil {
+		dst = append(dst, "\"optional_inner\":"...)
+		if m.OptionalInner != nil {
+			dst, err = m.OptionalInner.AppendJSON(dst)
+			if err != nil {
+				return dst, err
+			}
+		} else {
+			dst = append(dst, "null"...)
+		}
+		dst = append(dst, ',')
+	}
+	switch c := m.ScalarChoice.(type) {
+	case *Shapes_ChoiceText:
+		dst = append(dst, "\"choice_text\":"...)
+		dst = jsonString(dst, c.ChoiceText)
+		dst = append(dst, ',')
+	case *Shapes_ChoiceData:
+		dst = append(dst, "\"choice_data\":"...)
+		dst = jsonBytes(dst, c.ChoiceData)
+		dst = append(dst, ',')
+	case *Shapes_ChoiceFlag:
+		dst = append(dst, "\"choice_flag\":"...)
+		dst = strconv.AppendBool(dst, c.ChoiceFlag)
 		dst = append(dst, ',')
 	}
 	dst = jsonEndObj(dst)

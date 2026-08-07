@@ -101,4 +101,17 @@ message Shapes {
     AuthPin pin = 32;
     AuthHeader header = 33;
   }
+
+  // Additional compact NetBird-like shapes.
+  repeated Kind kinds = 34;          // repeated enum / packed numeric
+  repeated bytes blobs = 35;         // repeated bytes
+  optional Kind optional_kind = 36;  // optional enum
+  optional Inner optional_inner = 37; // optional local message
+
+  // oneof with scalar/string/bytes arms.
+  oneof scalar_choice {
+    string choice_text = 38;
+    bytes choice_data = 39;
+    bool choice_flag = 40;
+  }
 }
