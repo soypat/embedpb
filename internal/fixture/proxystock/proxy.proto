@@ -1,0 +1,124 @@
+syntax = "proto3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+package proxyfixture;
+
+option go_package = "github.com/soypat/embedpb/internal/fixture/proxystock;proxypb";
+
+enum ProxyStatus {
+  PROXY_STATUS_PENDING = 0;
+  PROXY_STATUS_ACTIVE = 1;
+  PROXY_STATUS_ERROR = 2;
+}
+
+enum PathRewriteMode {
+  PATH_REWRITE_DEFAULT = 0;
+  PATH_REWRITE_PRESERVE = 1;
+}
+
+message ProxyCapabilities {
+  optional bool supports_custom_ports = 1;
+  optional bool private = 2;
+}
+
+message PathTargetOptions {
+  bool skip_tls_verify = 1;
+  google.protobuf.Duration request_timeout = 2;
+  PathRewriteMode path_rewrite = 3;
+  map<string, string> custom_headers = 4;
+  google.protobuf.Duration session_idle_timeout = 5;
+}
+
+message PathMapping {
+  string path = 1;
+  string target = 2;
+  PathTargetOptions options = 3;
+}
+
+message HeaderAuth {
+  string header = 1;
+  string hashed_value = 2;
+}
+
+message Authentication {
+  string session_key = 1;
+  int64 max_session_age_seconds = 2;
+  bool password = 3;
+  bool pin = 4;
+  repeated HeaderAuth header_auths = 5;
+}
+
+message ProxyMapping {
+  string id = 1;
+  string account_id = 2;
+  string domain = 3;
+  repeated PathMapping path = 4;
+  Authentication auth = 5;
+  bool pass_host_header = 6;
+  int32 listen_port = 7;
+}
+
+message AccessLog {
+  google.protobuf.Timestamp timestamp = 1;
+  string log_id = 2;
+  string service_id = 3;
+  int64 duration_ms = 4;
+  map<string, string> metadata = 5;
+}
+
+message PasswordRequest {
+  string password = 1;
+}
+
+message PinRequest {
+  string pin = 1;
+}
+
+message HeaderAuthRequest {
+  string header_value = 1;
+  string header_name = 2;
+}
+
+message AuthenticateRequest {
+  string id = 1;
+  string account_id = 2;
+  oneof request {
+    PasswordRequest password = 3;
+    PinRequest pin = 4;
+    HeaderAuthRequest header_auth = 5;
+  }
+}
+
+message ProxyInboundListener {
+  string tunnel_ip = 1;
+  uint32 https_port = 2;
+  uint32 http_port = 3;
+}
+
+message SendStatusUpdateRequest {
+  string service_id = 1;
+  string account_id = 2;
+  ProxyStatus status = 3;
+  optional string error_message = 4;
+  optional ProxyInboundListener inbound_listener = 50;
+}
+
+message SyncMappingsInit {
+  string proxy_id = 1;
+  string version = 2;
+  google.protobuf.Timestamp started_at = 3;
+  ProxyCapabilities capabilities = 4;
+}
+
+message SyncMappingsAck {
+  string batch_id = 1;
+}
+
+message SyncMappingsRequest {
+  oneof msg {
+    SyncMappingsInit init = 1;
+    SyncMappingsAck ack = 2;
+  }
+}

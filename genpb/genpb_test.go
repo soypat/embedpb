@@ -16,6 +16,10 @@ const (
 	stockDir    = "../internal/fixture/stock"
 	embeddedOut = "../internal/fixture/embedded/embedpb_generated.go"
 	runtimeOut  = "../internal/fixture/embeddedrt/embedpb_generated.go"
+
+	proxyStockDir    = "../internal/fixture/proxystock"
+	proxyEmbeddedOut = "../internal/fixture/proxyembedded/embedpb_generated.go"
+	proxyRuntimeOut  = "../internal/fixture/proxyembeddedrt/embedpb_generated.go"
 )
 
 // TestFixturesUpToDate regenerates from the stock shapes package and compares
@@ -25,16 +29,19 @@ const (
 func TestFixturesUpToDate(t *testing.T) {
 	for _, tt := range []struct {
 		name    string
+		dir     string
 		runtime bool
 		golden  string
 	}{
-		{name: "inline", golden: embeddedOut},
-		{name: "runtime", runtime: true, golden: runtimeOut},
+		{name: "shapes-inline", dir: stockDir, golden: embeddedOut},
+		{name: "shapes-runtime", dir: stockDir, runtime: true, golden: runtimeOut},
+		{name: "proxy-inline", dir: proxyStockDir, golden: proxyEmbeddedOut},
+		{name: "proxy-runtime", dir: proxyStockDir, runtime: true, golden: proxyRuntimeOut},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			out := filepath.Join(t.TempDir(), "embedpb_generated.go")
 			err := genpb.Generate(genpb.Options{
-				Dir:     stockDir,
+				Dir:     tt.dir,
 				Out:     out,
 				Runtime: tt.runtime,
 				// No Tag: the fixtures must build under a plain `go test ./...`.
