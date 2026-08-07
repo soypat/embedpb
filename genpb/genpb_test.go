@@ -20,6 +20,10 @@ const (
 	proxyStockDir    = "../internal/fixture/proxystock"
 	proxyEmbeddedOut = "../internal/fixture/proxyembedded/embedpb_generated.go"
 	proxyRuntimeOut  = "../internal/fixture/proxyembeddedrt/embedpb_generated.go"
+
+	flowStockDir    = "../internal/fixture/flowstock"
+	flowEmbeddedOut = "../internal/fixture/flowembedded/embedpb_generated.go"
+	flowRuntimeOut  = "../internal/fixture/flowembeddedrt/embedpb_generated.go"
 )
 
 // TestFixturesUpToDate regenerates from the stock shapes package and compares
@@ -37,6 +41,8 @@ func TestFixturesUpToDate(t *testing.T) {
 		{name: "shapes-runtime", dir: stockDir, runtime: true, golden: runtimeOut},
 		{name: "proxy-inline", dir: proxyStockDir, golden: proxyEmbeddedOut},
 		{name: "proxy-runtime", dir: proxyStockDir, runtime: true, golden: proxyRuntimeOut},
+		{name: "flow-inline", dir: flowStockDir, golden: flowEmbeddedOut},
+		{name: "flow-runtime", dir: flowStockDir, runtime: true, golden: flowRuntimeOut},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			out := filepath.Join(t.TempDir(), "embedpb_generated.go")
