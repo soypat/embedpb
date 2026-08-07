@@ -71,12 +71,12 @@ func sample() *Shapes {
 			"peer-a": {Values: []string{"10.0.0.10", "fd00::10"}},
 			"peer-b": {Values: []string{"10.0.0.20"}},
 		},
-		Auth:           &Shapes_Header{Header: &AuthHeader{Name: "x-user", Value: "alice"}},
-		Kinds:          []Kind{Kind_KIND_A, Kind_KIND_B},
-		Blobs:          [][]byte{[]byte("alpha"), []byte("beta")},
-		OptionalKind:   Kind_KIND_B.Enum(),
-		OptionalInner:  &Inner{A: 77, B: "optional-local"},
-		ScalarChoice:   &Shapes_ChoiceText{ChoiceText: "scalar-oneof"},
+		Auth:          &Shapes_Header{Header: &AuthHeader{Name: "x-user", Value: "alice"}},
+		Kinds:         []Kind{Kind_KIND_A, Kind_KIND_B},
+		Blobs:         [][]byte{[]byte("alpha"), []byte("beta")},
+		OptionalKind:  Kind_KIND_B.Enum(),
+		OptionalInner: &Inner{A: 77, B: "optional-local"},
+		ScalarChoice:  &Shapes_ChoiceText{ChoiceText: "scalar-oneof"},
 	}
 }
 
@@ -124,12 +124,12 @@ func stockSample() *stock.Shapes {
 			"peer-a": {Values: []string{"10.0.0.10", "fd00::10"}},
 			"peer-b": {Values: []string{"10.0.0.20"}},
 		},
-		Auth:           &stock.Shapes_Header{Header: &stock.AuthHeader{Name: "x-user", Value: "alice"}},
-		Kinds:          []stock.Kind{stock.Kind_KIND_A, stock.Kind_KIND_B},
-		Blobs:          [][]byte{[]byte("alpha"), []byte("beta")},
-		OptionalKind:   stock.Kind_KIND_B.Enum(),
-		OptionalInner:  &stock.Inner{A: 77, B: "optional-local"},
-		ScalarChoice:   &stock.Shapes_ChoiceText{ChoiceText: "scalar-oneof"},
+		Auth:          &stock.Shapes_Header{Header: &stock.AuthHeader{Name: "x-user", Value: "alice"}},
+		Kinds:         []stock.Kind{stock.Kind_KIND_A, stock.Kind_KIND_B},
+		Blobs:         [][]byte{[]byte("alpha"), []byte("beta")},
+		OptionalKind:  stock.Kind_KIND_B.Enum(),
+		OptionalInner: &stock.Inner{A: 77, B: "optional-local"},
+		ScalarChoice:  &stock.Shapes_ChoiceText{ChoiceText: "scalar-oneof"},
 	}
 }
 
