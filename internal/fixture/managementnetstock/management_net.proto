@@ -1,0 +1,300 @@
+syntax = "proto3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+package managementnetfixture;
+
+option go_package = "github.com/soypat/embedpb/internal/fixture/managementnetstock;managementnetpb";
+
+message SyncResponse {
+  NetbirdConfig netbirdConfig = 1;
+  NetworkMap NetworkMap = 5;
+  google.protobuf.Timestamp sessionExpiresAt = 7;
+}
+
+message NetbirdConfig {
+  repeated HostConfig stuns = 1;
+  repeated ProtectedHostConfig turns = 2;
+  HostConfig signal = 3;
+  RelayConfig relay = 4;
+  FlowConfig flow = 5;
+}
+
+message HostConfig {
+  string uri = 1;
+  Protocol protocol = 2;
+
+  enum Protocol {
+    UDP = 0;
+    TCP = 1;
+    HTTP = 2;
+    HTTPS = 3;
+    DTLS = 4;
+  }
+}
+
+message ProtectedHostConfig {
+  HostConfig hostConfig = 1;
+  string user = 2;
+  string password = 3;
+}
+
+message RelayConfig {
+  repeated string urls = 1;
+  string tokenPayload = 2;
+  string tokenSignature = 3;
+}
+
+message FlowConfig {
+  string url = 1;
+  string tokenPayload = 2;
+  string tokenSignature = 3;
+  google.protobuf.Duration interval = 4;
+  bool enabled = 5;
+  bool counters = 6;
+  bool exitNodeCollection = 7;
+  bool dnsCollection = 8;
+}
+
+message NetworkMap {
+  uint64 Serial = 1;
+  PeerConfig peerConfig = 2;
+  repeated RemotePeerConfig remotePeers = 3;
+  bool remotePeersIsEmpty = 4;
+  repeated Route Routes = 5;
+  DNSConfig DNSConfig = 6;
+  repeated RemotePeerConfig offlinePeers = 7;
+  repeated FirewallRule FirewallRules = 8;
+  bool firewallRulesIsEmpty = 9;
+  repeated RouteFirewallRule routesFirewallRules = 10;
+  bool routesFirewallRulesIsEmpty = 11;
+  repeated ForwardingRule forwardingRules = 12;
+  SSHAuth sshAuth = 13;
+}
+
+message PeerConfig {
+  string address = 1;
+  string dns = 2;
+  SSHConfig sshConfig = 3;
+  string fqdn = 4;
+  bool RoutingPeerDnsResolutionEnabled = 5;
+  bool LazyConnectionEnabled = 6;
+  int32 mtu = 7;
+  AutoUpdateSettings autoUpdate = 8;
+  bytes address_v6 = 9;
+}
+
+message AutoUpdateSettings {
+  string version = 1;
+  bool alwaysUpdate = 2;
+}
+
+message RemotePeerConfig {
+  string wgPubKey = 1;
+  repeated string allowedIps = 2;
+  SSHConfig sshConfig = 3;
+  string fqdn = 4;
+  string agentVersion = 5;
+}
+
+message SSHConfig {
+  bool sshEnabled = 1;
+  bytes sshPubKey = 2;
+  JWTConfig jwtConfig = 3;
+}
+
+message JWTConfig {
+  string issuer = 1;
+  string audience = 2;
+  string keysLocation = 3;
+  int64 maxTokenAge = 4;
+  repeated string audiences = 5;
+}
+
+message SSHAuth {
+  string UserIDClaim = 1;
+  repeated bytes AuthorizedUsers = 2;
+  map<string, MachineUserIndexes> machine_users = 3;
+}
+
+message MachineUserIndexes {
+  repeated uint32 indexes = 1;
+}
+
+message Route {
+  string ID = 1;
+  string Network = 2;
+  int64 NetworkType = 3;
+  string Peer = 4;
+  int64 Metric = 5;
+  bool Masquerade = 6;
+  string NetID = 7;
+  repeated string Domains = 8;
+  bool keepRoute = 9;
+  bool skipAutoApply = 10;
+}
+
+message DNSConfig {
+  bool ServiceEnable = 1;
+  repeated NameServerGroup NameServerGroups = 2;
+  repeated CustomZone CustomZones = 3;
+  int64 ForwarderPort = 4 [deprecated = true];
+}
+
+message CustomZone {
+  string Domain = 1;
+  repeated SimpleRecord Records = 2;
+  bool SearchDomainDisabled = 3;
+  bool NonAuthoritative = 4;
+}
+
+message SimpleRecord {
+  string Name = 1;
+  int64 Type = 2;
+  string Class = 3;
+  int64 TTL = 4;
+  string RData = 5;
+}
+
+message NameServerGroup {
+  repeated NameServer NameServers = 1;
+  bool Primary = 2;
+  repeated string Domains = 3;
+  bool SearchDomainsEnabled = 4;
+}
+
+message NameServer {
+  string IP = 1;
+  int64 NSType = 2;
+  int64 Port = 3;
+}
+
+enum RuleProtocol {
+  UNKNOWN = 0;
+  ALL = 1;
+  TCP = 2;
+  UDP = 3;
+  ICMP = 4;
+  CUSTOM = 5;
+}
+
+enum RuleDirection {
+  IN = 0;
+  OUT = 1;
+}
+
+enum RuleAction {
+  ACCEPT = 0;
+  DROP = 1;
+}
+
+message FirewallRule {
+  string PeerIP = 1 [deprecated = true];
+  RuleDirection Direction = 2;
+  RuleAction Action = 3;
+  RuleProtocol Protocol = 4;
+  string Port = 5;
+  PortInfo PortInfo = 6;
+  bytes PolicyID = 7;
+  uint32 customProtocol = 8;
+  repeated bytes sourcePrefixes = 9;
+}
+
+message PortInfo {
+  oneof portSelection {
+    uint32 port = 1;
+    Range range = 2;
+  }
+
+  message Range {
+    uint32 start = 1;
+    uint32 end = 2;
+  }
+}
+
+message RouteFirewallRule {
+  repeated string sourceRanges = 1;
+  RuleAction action = 2;
+  string destination = 3;
+  RuleProtocol protocol = 4;
+  PortInfo portInfo = 5;
+  bool isDynamic = 6;
+  repeated string domains = 7;
+  uint32 customProtocol = 8;
+  bytes PolicyID = 9;
+  string RouteID = 10;
+}
+
+message ForwardingRule {
+  RuleProtocol protocol = 1;
+  PortInfo destinationPort = 2;
+  bytes translatedAddress = 3;
+  PortInfo translatedPort = 4;
+}
+
+message NetworkAddress {
+  string netIP = 1;
+  string mac = 2;
+}
+
+message Checks {
+  repeated string Files = 1;
+}
+
+message Environment {
+  string cloud = 1;
+  string platform = 2;
+}
+
+message File {
+  string path = 1;
+  bool exist = 2;
+  bool processIsRunning = 3;
+}
+
+message Flags {
+  bool rosenpassEnabled = 1;
+  bool rosenpassPermissive = 2;
+  bool serverSSHAllowed = 3;
+  bool disableClientRoutes = 4;
+  bool disableServerRoutes = 5;
+  bool disableDNS = 6;
+  bool disableFirewall = 7;
+  bool blockLANAccess = 8;
+  bool blockInbound = 9;
+  bool lazyConnectionEnabled = 10;
+  bool enableSSHRoot = 11;
+  bool enableSSHSFTP = 12;
+  bool enableSSHLocalPortForwarding = 13;
+  bool enableSSHRemotePortForwarding = 14;
+  bool disableSSHAuth = 15;
+  bool disableIPv6 = 16;
+}
+
+enum PeerCapability {
+  PeerCapabilityUnknown = 0;
+  PeerCapabilitySourcePrefixes = 1;
+  PeerCapabilityIPv6Overlay = 2;
+}
+
+message PeerSystemMeta {
+  string hostname = 1;
+  string goOS = 2;
+  string kernel = 3;
+  string core = 4;
+  string platform = 5;
+  string OS = 6;
+  string netbirdVersion = 7;
+  string uiVersion = 8;
+  string kernelVersion = 9;
+  string OSVersion = 10;
+  repeated NetworkAddress networkAddresses = 11;
+  string sysSerialNumber = 12;
+  string sysProductName = 13;
+  string sysManufacturer = 14;
+  Environment environment = 15;
+  repeated File files = 16;
+  Flags flags = 17;
+  repeated PeerCapability capabilities = 18;
+}

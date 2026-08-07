@@ -28,6 +28,10 @@ const (
 	managementJobStockDir    = "../internal/fixture/managementjobstock"
 	managementJobEmbeddedOut = "../internal/fixture/managementjobembedded/embedpb_generated.go"
 	managementJobRuntimeOut  = "../internal/fixture/managementjobembeddedrt/embedpb_generated.go"
+
+	managementNetStockDir    = "../internal/fixture/managementnetstock"
+	managementNetEmbeddedOut = "../internal/fixture/managementnetembedded/embedpb_generated.go"
+	managementNetRuntimeOut  = "../internal/fixture/managementnetembeddedrt/embedpb_generated.go"
 )
 
 // TestFixturesUpToDate regenerates from the stock shapes package and compares
@@ -49,6 +53,8 @@ func TestFixturesUpToDate(t *testing.T) {
 		{name: "flow-runtime", dir: flowStockDir, runtime: true, golden: flowRuntimeOut},
 		{name: "management-job-inline", dir: managementJobStockDir, golden: managementJobEmbeddedOut},
 		{name: "management-job-runtime", dir: managementJobStockDir, runtime: true, golden: managementJobRuntimeOut},
+		{name: "management-net-inline", dir: managementNetStockDir, golden: managementNetEmbeddedOut},
+		{name: "management-net-runtime", dir: managementNetStockDir, runtime: true, golden: managementNetRuntimeOut},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			out := filepath.Join(t.TempDir(), "embedpb_generated.go")
