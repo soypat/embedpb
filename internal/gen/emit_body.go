@@ -254,8 +254,10 @@ func renderFieldUnmarshal(x *w, m Message, f Field) {
 			emitMsgDecode(x, "\t\t\t\t", f.Elem, val, "v")
 			x.p("\t\t\t}")
 		} else if f.Elem.Kind == "bytes" {
+			// []byte{}, not []byte(nil): nil is the unset representation here,
+			// so a present-but-empty value must stay non-nil.
 			x.p("\t\t\tv, k := protowire.ConsumeBytes(b); consumed = k")
-			x.p("\t\t\t%s = append([]byte(nil), v...)", val)
+			x.p("\t\t\t%s = append([]byte{}, v...)", val)
 		} else {
 			x.p("\t\t\tv, k := %s(b); consumed = k", consumeFunc(f.Wire, f.Elem))
 			x.p("\t\t\ttmp := %s; %s = &tmp", castTo(f.Elem, decodeExpr(f.Wire, f.Elem)), val)
