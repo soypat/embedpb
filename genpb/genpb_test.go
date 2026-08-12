@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"flag"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -74,6 +76,58 @@ func TestRuntimeModeOnlySwapsSupportCode(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestRuntimeFixturesCompile catches runtime-only failures that a source
+// comparison cannot, such as missing imports, symbols, or type mismatches.
+func TestRuntimeFixturesCompile(t *testing.T) {
+	tempRoot := t.TempDir()
+	moduleRoot, err := filepath.Abs(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gomod := `module github.com/soypat/embedpb-runtime-fixtures
+
+go ` + moduleGoVersion(t) + `
+
+require github.com/soypat/embedpb v0.0.0
+
+replace github.com/soypat/embedpb => ` + strconv.Quote(filepath.ToSlash(moduleRoot)) + "\n"
+	if err := os.WriteFile(filepath.Join(tempRoot, "go.mod"), []byte(gomod), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range fixture.All {
+		dir := filepath.Join(tempRoot, f.Name)
+		if err := os.Mkdir(dir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, "embedpb_generated.go"), generate(t, f.StockDir, true), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	cmd := exec.Command("go", "test", "-mod=mod", "./...")
+	cmd.Dir = tempRoot
+	cmd.Env = append(os.Environ(), "GOWORK=off")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("runtime fixtures do not compile: %v\n%s", err, output)
+	}
+}
+
+func moduleGoVersion(t *testing.T) string {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join(root, "go.mod"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for line := range strings.Lines(string(b)) {
+		fields := strings.Fields(line)
+		if len(fields) == 2 && fields[0] == "go" {
+			return fields[1]
+		}
+	}
+	t.Fatal("go.mod has no go directive")
+	return ""
 }
 
 // messageBody strips the two things -runtime is expected to change: the support
