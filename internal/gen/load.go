@@ -358,13 +358,21 @@ func classifyField(f *types.Var, tag protoTag, msgNamed map[string]*types.Named,
 		if named, ok := pt.Elem().(*types.Named); ok {
 			if _, isMsg := msgNamed[named.Obj().Name()]; isMsg {
 				fld.Elem = Elem{Kind: "message", Ref: named.Obj().Name()}
-				fld.Card = CardSingle
+				if tag.Oneof {
+					fld.Card = CardOptional
+				} else {
+					fld.Card = CardSingle
+				}
 				return fld, nil
 			}
-			// pointer to external message (well-known type) => single message.
+			// pointer to external message (well-known type).
 			if isExternalMessage(named) {
 				fld.Elem = registerExternal(named, ext)
-				fld.Card = CardSingle
+				if tag.Oneof {
+					fld.Card = CardOptional
+				} else {
+					fld.Card = CardSingle
+				}
 				return fld, nil
 			}
 		}

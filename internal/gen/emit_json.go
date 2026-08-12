@@ -40,8 +40,23 @@ func emitFieldJSON(x *w, m Message, f Field) {
 		return
 	}
 
-	x.p("\tdst = append(dst, %q...)", `"`+f.ProtoName+`":`)
 	val := "m." + f.GoName
+	if f.Card == CardOptional {
+		x.p("\tif %s != nil {", val)
+		x.p("\t\tdst = append(dst, %q...)", `"`+f.ProtoName+`":`)
+		if f.Elem.Kind == "message" {
+			emitMsgJSON(x, "\t\t", f.Elem, val)
+		} else if f.Elem.Kind == "bytes" {
+			emitScalarJSON(x, "\t\t", f.Elem, val)
+		} else {
+			emitScalarJSON(x, "\t\t", f.Elem, "*"+val)
+		}
+		x.p("\t\tdst = append(dst, ',')")
+		x.p("\t}")
+		return
+	}
+
+	x.p("\tdst = append(dst, %q...)", `"`+f.ProtoName+`":`)
 	switch f.Card {
 	case CardMap:
 		x.p("\tdst = append(dst, '{')")
@@ -73,14 +88,6 @@ func emitFieldJSON(x *w, m Message, f Field) {
 		}
 		x.p("\t}")
 		x.p("\tdst = append(dst, ']')")
-	case CardOptional:
-		x.p("\tif %s != nil {", val)
-		if f.Elem.Kind == "bytes" {
-			emitScalarJSON(x, "\t\t", f.Elem, val)
-		} else {
-			emitScalarJSON(x, "\t\t", f.Elem, "*"+val)
-		}
-		x.p("\t} else { dst = append(dst, \"null\"...) }")
 	default:
 		if f.Elem.Kind == "message" {
 			emitMsgJSON(x, "\t", f.Elem, val)

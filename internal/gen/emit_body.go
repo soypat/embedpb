@@ -47,7 +47,9 @@ func renderSize(x *w, m Message) {
 			}
 		case CardOptional:
 			x.p("\tif %s != nil {", val)
-			if f.Elem.Kind == "bytes" {
+			if f.Elem.Kind == "message" {
+				x.p("\t\tn += protowire.SizeTag(%d) + protowire.SizeBytes(%s)", f.Num, msgSizeExpr(f.Elem, val))
+			} else if f.Elem.Kind == "bytes" {
 				x.p("\t\tn += protowire.SizeTag(%d) + protowire.SizeBytes(len(%s))", f.Num, val)
 			} else {
 				x.p("\t\tn += protowire.SizeTag(%d) + %s", f.Num, scalarSize(f.Wire, f.Elem, "*"+val))
@@ -114,10 +116,15 @@ func renderMarshal(x *w, m Message) {
 			}
 		case CardOptional:
 			x.p("\tif %s != nil {", val)
-			x.p("\t\tb = protowire.AppendTag(b, %d, %s)", f.Num, wireTypeConst(f.Wire))
-			if f.Elem.Kind == "bytes" {
+			if f.Elem.Kind == "message" {
+				emitSub(x, "\t\t", f.Elem, val)
+				x.p("\t\tb = protowire.AppendTag(b, %d, protowire.BytesType)", f.Num)
+				x.p("\t\tb = protowire.AppendBytes(b, sub)")
+			} else if f.Elem.Kind == "bytes" {
+				x.p("\t\tb = protowire.AppendTag(b, %d, %s)", f.Num, wireTypeConst(f.Wire))
 				x.p("\t\tb = protowire.AppendBytes(b, %s)", val)
 			} else {
+				x.p("\t\tb = protowire.AppendTag(b, %d, %s)", f.Num, wireTypeConst(f.Wire))
 				x.p("\t\t%s", scalarAppend("b", f.Wire, f.Elem, "*"+val))
 			}
 			x.p("\t}")
@@ -241,9 +248,16 @@ func renderFieldUnmarshal(x *w, m Message, f Field) {
 			x.p("\t\t\tv, k := %s(b); consumed = k; %s = append(%s, %s)", consumeFunc(f.Wire, f.Elem), val, val, castTo(f.Elem, decodeExpr(f.Wire, f.Elem)))
 		}
 	case CardOptional:
-		if f.Elem.Kind == "bytes" {
+		if f.Elem.Kind == "message" {
 			x.p("\t\t\tv, k := protowire.ConsumeBytes(b); consumed = k")
-			x.p("\t\t\t%s = append([]byte(nil), v...)", val)
+			x.p("\t\t\tif consumed >= 0 {")
+			emitMsgDecode(x, "\t\t\t\t", f.Elem, val, "v")
+			x.p("\t\t\t}")
+		} else if f.Elem.Kind == "bytes" {
+			// []byte{}, not []byte(nil): nil is the unset representation here,
+			// so a present-but-empty value must stay non-nil.
+			x.p("\t\t\tv, k := protowire.ConsumeBytes(b); consumed = k")
+			x.p("\t\t\t%s = append([]byte{}, v...)", val)
 		} else {
 			x.p("\t\t\tv, k := %s(b); consumed = k", consumeFunc(f.Wire, f.Elem))
 			x.p("\t\t\ttmp := %s; %s = &tmp", castTo(f.Elem, decodeExpr(f.Wire, f.Elem)), val)

@@ -226,6 +226,8 @@ func renderGetters(x *w, m Message) {
 		case CardOptional:
 			if f.Elem.Kind == "bytes" {
 				x.p("func (%s *%s) Get%s() []byte { if %s != nil { return %s.%s }; return nil }", recv, m.GoName, f.GoName, recv, recv, f.GoName)
+			} else if f.Elem.Kind == "message" {
+				x.p("func (%s *%s) Get%s() %s { if %s != nil { return %s.%s }; return nil }", recv, m.GoName, f.GoName, gt, recv, recv, f.GoName)
 			} else {
 				base := scalarGoType(f.Elem)
 				x.p("func (%s *%s) Get%s() %s { if %s != nil && %s.%s != nil { return *%s.%s }; return %s }", recv, m.GoName, f.GoName, base, recv, recv, f.GoName, recv, f.GoName, zeroLit(f.Elem))

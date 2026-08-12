@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/duration.proto";
+
 package shapes;
 
 option go_package = "github.com/soypat/embedpb/internal/fixture/stock;shapespb";
@@ -15,6 +17,26 @@ enum Kind {
 message Inner {
   uint32 a = 1;
   string b = 2;
+}
+
+// StringList mirrors daemon IPList: a map value message that itself contains a
+// repeated string field.
+message StringList {
+  repeated string values = 1;
+}
+
+// Message-only oneof arms mirror proxy AuthenticateRequest / SyncMappingsRequest.
+message AuthPassword {
+  string password = 1;
+}
+
+message AuthPin {
+  string pin = 1;
+}
+
+message AuthHeader {
+  string name = 1;
+  string value = 2;
 }
 
 // Shapes exercises every wire feature the generator must emit:
@@ -51,4 +73,45 @@ message Shapes {
 
   // map<string, message>: the mgmt machine_users shape
   map<string, Inner> entries = 21;
+
+  // proto3 optional fields mirror signal Body.relayServerAddress/sessionId and
+  // Mode.direct: presence matters even when the scalar value is zero.
+  optional bool optional_flag = 22;
+  optional string optional_name = 23;
+  optional bytes optional_blob = 24;
+
+  // map<string, string>: mirrors proxy custom_headers / metadata.
+  map<string, string> labels = 25;
+
+  // Optional numerics mirror daemon config fields like wireguardPort, mtu,
+  // sshJWTCacheTTL, icmp_type and icmp_code.
+  optional int32 optional_i32 = 26;
+  optional int64 optional_i64 = 27;
+  optional uint32 optional_u32 = 28;
+
+  // Optional well-known type mirrors daemon dnsRouteInterval.
+  optional google.protobuf.Duration optional_duration = 29;
+
+  // map<string, message-with-repeated-string>: mirrors daemon resolvedIPs.
+  map<string, StringList> resolved = 30;
+
+  // oneof with several message arms: mirrors proxy authentication/sync requests.
+  oneof auth {
+    AuthPassword password = 31;
+    AuthPin pin = 32;
+    AuthHeader header = 33;
+  }
+
+  // Additional compact NetBird-like shapes.
+  repeated Kind kinds = 34;          // repeated enum / packed numeric
+  repeated bytes blobs = 35;         // repeated bytes
+  optional Kind optional_kind = 36;  // optional enum
+  optional Inner optional_inner = 37; // optional local message
+
+  // oneof with scalar/string/bytes arms.
+  oneof scalar_choice {
+    string choice_text = 38;
+    bytes choice_data = 39;
+    bool choice_flag = 40;
+  }
 }
