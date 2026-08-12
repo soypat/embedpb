@@ -1,19 +1,20 @@
 package managementnetpb
 
 import (
-	"encoding/json"
-	"reflect"
 	"testing"
 	"time"
 
+	"github.com/soypat/embedpb/internal/fixture/fixtest"
 	stock "github.com/soypat/embedpb/internal/fixture/managementnetstock"
 
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// sampleSyncResponse is the five-level chain
+// SyncResponse → NetworkMap → DNSConfig → CustomZone → SimpleRecord, plus
+// map<string,MachineUserIndexes> whose value holds a packed repeated field and
+// the PortInfo oneof with its PortInfo_Range_ wrapper.
 func sampleSyncResponse() *SyncResponse {
 	return &SyncResponse{
 		NetbirdConfig: &NetbirdConfig{
@@ -142,69 +143,9 @@ func sshConfig() *SSHConfig {
 	}
 }
 
-func stockSyncResponse() *stock.SyncResponse {
-	b, err := proto.Marshal(sampleSyncResponse())
-	if err != nil {
-		panic(err)
-	}
-	var out stock.SyncResponse
-	if err := proto.Unmarshal(b, &out); err != nil {
-		panic(err)
-	}
-	return &out
-}
-
-func TestManagementNetInterop(t *testing.T) {
-	ours, err := proto.Marshal(sampleSyncResponse())
-	if err != nil {
-		t.Fatal(err)
-	}
-	var st stock.SyncResponse
-	if err := proto.Unmarshal(ours, &st); err != nil {
-		t.Fatalf("stock unmarshal: %v", err)
-	}
-	if st.GetNetbirdConfig().GetRelay().GetUrls()[1] != "rels://relay-b.netbird.test" ||
-		st.GetNetworkMap().GetRoutes()[0].GetDomains()[0] != "corp.example.test" ||
-		st.GetNetworkMap().GetForwardingRules()[0].GetTranslatedPort().GetRange().GetEnd() != 54 {
-		t.Fatalf("stock decoded management net wrong: %+v", &st)
-	}
-
-	stockBytes, err := proto.Marshal(stockSyncResponse())
-	if err != nil {
-		t.Fatal(err)
-	}
-	var mine SyncResponse
-	if err := proto.Unmarshal(stockBytes, &mine); err != nil {
-		t.Fatalf("our unmarshal: %v", err)
-	}
-	if mine.GetNetworkMap().GetDNSConfig().GetCustomZones()[0].GetRecords()[0].GetRData() != "100.64.0.20" ||
-		mine.GetNetworkMap().GetRoutesFirewallRules()[0].GetPortInfo().GetRange().GetStart() != 5000 ||
-		mine.GetNetworkMap().GetSshAuth().GetMachineUsers()["admin"].GetIndexes()[1] != 1 {
-		t.Fatalf("we decoded stock management net wrong: %+v", &mine)
-	}
-}
-
-func TestManagementNetJSONMatchesProtojson(t *testing.T) {
-	ours, err := sampleSyncResponse().AppendJSON(nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	theirs, err := protojson.MarshalOptions{
-		EmitUnpopulated: true,
-		UseProtoNames:   true,
-		AllowPartial:    true,
-	}.Marshal(stockSyncResponse())
-	if err != nil {
-		t.Fatal(err)
-	}
-	var gotV, wantV any
-	if err := json.Unmarshal(ours, &gotV); err != nil {
-		t.Fatalf("our JSON is invalid: %v\n%s", err, ours)
-	}
-	if err := json.Unmarshal(theirs, &wantV); err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(gotV, wantV) {
-		t.Fatalf("JSON mismatch\n got  %s\n want %s", ours, theirs)
-	}
+func TestManagementNet(t *testing.T) {
+	fixtest.Run(t, []fixtest.Case{
+		{Name: "sync-response", Ours: sampleSyncResponse(), Stock: new(stock.SyncResponse)},
+		{Name: "sync-response-empty", Ours: &SyncResponse{}, Stock: new(stock.SyncResponse)},
+	})
 }

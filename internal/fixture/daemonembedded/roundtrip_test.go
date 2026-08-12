@@ -1,43 +1,18 @@
 package daemonpb
 
 import (
-	"encoding/json"
-	"reflect"
 	"testing"
 	"time"
 
 	stock "github.com/soypat/embedpb/internal/fixture/daemonstock"
+	"github.com/soypat/embedpb/internal/fixture/fixtest"
 
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func boolp(v bool) *bool {
-	p := new(bool)
-	*p = v
-	return p
-}
-
-func stringp(v string) *string {
-	p := new(string)
-	*p = v
-	return p
-}
-
-func int64p(v int64) *int64 {
-	p := new(int64)
-	*p = v
-	return p
-}
-
-func int32p(v int32) *int32 {
-	p := new(int32)
-	*p = v
-	return p
-}
-
+// sampleLoginRequest is the daemon's proto3-optional workhorse: 32 optional
+// fields, a deprecated one, and a Duration.
 func sampleLoginRequest() *LoginRequest {
 	return &LoginRequest{
 		SetupKey:                      "setup-key",
@@ -49,40 +24,42 @@ func sampleLoginRequest() *LoginRequest {
 		CustomDNSAddress:              []byte{100, 64, 0, 53},
 		IsUnixDesktopClient:           true,
 		Hostname:                      "peer-a",
-		RosenpassEnabled:              boolp(true),
-		InterfaceName:                 stringp("wg0"),
-		WireguardPort:                 int64p(51820),
-		OptionalPreSharedKey:          stringp("modern-key"),
-		DisableAutoConnect:            boolp(true),
-		ServerSSHAllowed:              boolp(true),
-		RosenpassPermissive:           boolp(false),
+		RosenpassEnabled:              new(true),
+		InterfaceName:                 new("wg0"),
+		WireguardPort:                 new(int64(51820)),
+		OptionalPreSharedKey:          new("modern-key"),
+		DisableAutoConnect:            new(true),
+		ServerSSHAllowed:              new(true),
+		RosenpassPermissive:           new(false),
 		ExtraIFaceBlacklist:           []string{"docker0", "virbr0"},
-		NetworkMonitor:                boolp(true),
+		NetworkMonitor:                new(true),
 		DnsRouteInterval:              durationpb.New(30 * time.Second),
-		DisableClientRoutes:           boolp(false),
-		DisableServerRoutes:           boolp(true),
-		DisableDns:                    boolp(false),
-		DisableFirewall:               boolp(true),
-		BlockLanAccess:                boolp(true),
-		DisableNotifications:          boolp(false),
+		DisableClientRoutes:           new(false),
+		DisableServerRoutes:           new(true),
+		DisableDns:                    new(false),
+		DisableFirewall:               new(true),
+		BlockLanAccess:                new(true),
+		DisableNotifications:          new(false),
 		DnsLabels:                     []string{"prod", "ssh"},
 		CleanDNSLabels:                true,
-		LazyConnectionEnabled:         boolp(true),
-		BlockInbound:                  boolp(true),
-		ProfileName:                   stringp("work"),
-		Username:                      stringp("user@example.test"),
-		Mtu:                           int64p(1280),
-		Hint:                          stringp("user@example.test"),
-		EnableSSHRoot:                 boolp(true),
-		EnableSSHSFTP:                 boolp(true),
-		EnableSSHLocalPortForwarding:  boolp(true),
-		EnableSSHRemotePortForwarding: boolp(false),
-		DisableSSHAuth:                boolp(false),
-		SshJWTCacheTTL:                int32p(600),
-		DisableIpv6:                   boolp(false),
+		LazyConnectionEnabled:         new(true),
+		BlockInbound:                  new(true),
+		ProfileName:                   new("work"),
+		Username:                      new("user@example.test"),
+		Mtu:                           new(int64(1280)),
+		Hint:                          new("user@example.test"),
+		EnableSSHRoot:                 new(true),
+		EnableSSHSFTP:                 new(true),
+		EnableSSHLocalPortForwarding:  new(true),
+		EnableSSHRemotePortForwarding: new(false),
+		DisableSSHAuth:                new(false),
+		SshJWTCacheTTL:                new(int32(600)),
+		DisableIpv6:                   new(false),
 	}
 }
 
+// sampleStatusResponse carries the nested enums (SystemEvent.Severity /
+// .Category), Timestamps and a map<string,string>.
 func sampleStatusResponse() *StatusResponse {
 	now := time.Unix(1800000000, 123000000).UTC()
 	return &StatusResponse{
@@ -154,6 +131,7 @@ func sampleStatusResponse() *StatusResponse {
 	}
 }
 
+// sampleForwardingRules exercises both arms of the nested PortInfo.Range oneof.
 func sampleForwardingRules() *ForwardingRulesResponse {
 	return &ForwardingRulesResponse{Rules: []*ForwardingRule{
 		{
@@ -172,78 +150,9 @@ func sampleForwardingRules() *ForwardingRulesResponse {
 	}}
 }
 
-func stockLoginRequest() *stock.LoginRequest {
-	var out stock.LoginRequest
-	mustRoundtrip(sampleLoginRequest(), &out)
-	return &out
-}
-
-func stockStatusResponse() *stock.StatusResponse {
-	var out stock.StatusResponse
-	mustRoundtrip(sampleStatusResponse(), &out)
-	return &out
-}
-
-func mustRoundtrip(in proto.Message, out proto.Message) {
-	b, err := proto.Marshal(in)
-	if err != nil {
-		panic(err)
-	}
-	if err := proto.Unmarshal(b, out); err != nil {
-		panic(err)
-	}
-}
-
-func TestDaemonLoginInterop(t *testing.T) {
-	ours, err := proto.Marshal(sampleLoginRequest())
-	if err != nil {
-		t.Fatal(err)
-	}
-	var st stock.LoginRequest
-	if err := proto.Unmarshal(ours, &st); err != nil {
-		t.Fatalf("stock unmarshal: %v", err)
-	}
-	if !st.GetRosenpassEnabled() ||
-		st.GetDnsRouteInterval().AsDuration() != 30*time.Second ||
-		st.GetSshJWTCacheTTL() != 600 ||
-		st.GetDnsLabels()[1] != "ssh" {
-		t.Fatalf("stock decoded daemon login wrong: %+v", &st)
-	}
-
-	stockBytes, err := proto.Marshal(stockLoginRequest())
-	if err != nil {
-		t.Fatal(err)
-	}
-	var mine LoginRequest
-	if err := proto.Unmarshal(stockBytes, &mine); err != nil {
-		t.Fatalf("our unmarshal: %v", err)
-	}
-	if !mine.GetBlockInbound() ||
-		mine.GetInterfaceName() != "wg0" ||
-		mine.GetWireguardPort() != 51820 ||
-		mine.GetExtraIFaceBlacklist()[0] != "docker0" {
-		t.Fatalf("we decoded stock daemon login wrong: %+v", &mine)
-	}
-}
-
-func TestDaemonForwardingInterop(t *testing.T) {
-	ours, err := proto.Marshal(sampleForwardingRules())
-	if err != nil {
-		t.Fatal(err)
-	}
-	var st stock.ForwardingRulesResponse
-	if err := proto.Unmarshal(ours, &st); err != nil {
-		t.Fatalf("stock unmarshal: %v", err)
-	}
-	if st.GetRules()[0].GetDestinationPort().GetPort() != 443 ||
-		st.GetRules()[1].GetDestinationPort().GetRange().GetEnd() != 6000 ||
-		st.GetRules()[1].GetTranslatedPort().GetRange().GetStart() != 15000 {
-		t.Fatalf("stock decoded daemon forwarding wrong: %+v", &st)
-	}
-}
-
-func TestDaemonNetworkMapInterop(t *testing.T) {
-	msg := &Network{
+// sampleNetwork carries map<string,IPList> — a map with a message value.
+func sampleNetwork() *Network {
+	return &Network{
 		ID:       "network-a",
 		Range:    "10.10.0.0/16",
 		Selected: true,
@@ -252,40 +161,22 @@ func TestDaemonNetworkMapInterop(t *testing.T) {
 			"app.corp.example.test": {Ips: []string{"100.64.0.10", "fd00::10"}},
 		},
 	}
-	b, err := proto.Marshal(msg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var st stock.Network
-	if err := proto.Unmarshal(b, &st); err != nil {
-		t.Fatalf("stock unmarshal: %v", err)
-	}
-	if st.GetResolvedIPs()["app.corp.example.test"].GetIps()[1] != "fd00::10" {
-		t.Fatalf("stock decoded daemon network wrong: %+v", &st)
-	}
 }
 
-func TestDaemonStatusJSONMatchesProtojson(t *testing.T) {
-	ours, err := sampleStatusResponse().AppendJSON(nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	theirs, err := protojson.MarshalOptions{
-		EmitUnpopulated: true,
-		UseProtoNames:   true,
-		AllowPartial:    true,
-	}.Marshal(stockStatusResponse())
-	if err != nil {
-		t.Fatal(err)
-	}
-	var gotV, wantV any
-	if err := json.Unmarshal(ours, &gotV); err != nil {
-		t.Fatalf("our JSON is invalid: %v\n%s", err, ours)
-	}
-	if err := json.Unmarshal(theirs, &wantV); err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(gotV, wantV) {
-		t.Fatalf("JSON mismatch\n got  %s\n want %s", ours, theirs)
-	}
+// sampleExposeServiceEvent is a single-arm message oneof.
+func sampleExposeServiceEvent() *ExposeServiceEvent {
+	return &ExposeServiceEvent{Event: &ExposeServiceEvent_Ready{
+		Ready: &ExposeServiceReady{ServiceName: "app"},
+	}}
+}
+
+func TestDaemon(t *testing.T) {
+	fixtest.Run(t, []fixtest.Case{
+		{Name: "login-request", Ours: sampleLoginRequest(), Stock: new(stock.LoginRequest)},
+		{Name: "login-request-optionals-unset", Ours: &LoginRequest{Hostname: "peer-a"}, Stock: new(stock.LoginRequest)},
+		{Name: "status-response", Ours: sampleStatusResponse(), Stock: new(stock.StatusResponse)},
+		{Name: "forwarding-rules", Ours: sampleForwardingRules(), Stock: new(stock.ForwardingRulesResponse)},
+		{Name: "network", Ours: sampleNetwork(), Stock: new(stock.Network)},
+		{Name: "expose-service-event", Ours: sampleExposeServiceEvent(), Stock: new(stock.ExposeServiceEvent)},
+	})
 }

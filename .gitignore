@@ -1,1 +1,3 @@
 embedpb_generated.go
+/*.local.*
+*.local
